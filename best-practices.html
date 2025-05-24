@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Best Practices & Security - Electron App Development Documentation</title>
+</head>
+<body>
+  <div class="container">
+    <nav id="navbar">
+      <header>Electron Documentation</header>
+      <a class="nav-link" href="introduction.html">Introduction to Electron</a>
+      <a class="nav-link" href="setup.html">Setup & Installation</a>
+      <a class="nav-link" href="main-renderer.html">Main vs Renderer Process</a>
+      <a class="nav-link" href="first-app.html">Building Your First App</a>
+      <a class="nav-link" href="packaging.html">Packaging & Distribution</a>
+      <a class="nav-link" href="best-practices.html">Best Practices & Security</a>
+    </nav>
+    
+    <main id="main-doc">
+      <section class="main-section" id="BestPractices">
+        <header>Best Practices & Security</header>
+        
+        <p>This guide covers essential practices for building secure, efficient, and maintainable Electron applications. Following these recommendations will help you avoid common pitfalls and create better apps.</p>
+        
+        <h3>Security Best Practices</h3>
+        <p>Security is crucial for Electron apps since they have access to both web and native capabilities.</p>
+        
+        <h4>1. Use Context Isolation</h4>
+        <p>Context isolation separates your preload script from the renderer's JavaScript context, preventing prototype pollution attacks.</p>
+        
+        <div class="do-dont">
+          <style>
+            .do-dont {
+              display: flex;
+              gap: 20px;
+              margin: 20px 0;
+            }
+            .do, .dont {
+              flex: 1;
+              padding: 15px;
+              border-radius: 8px;
+            }
+            .do {
+              background-color: #e8f5e9;
+              border-left: 4px solid #2ecc71;
+            }
+            .dont {
+              background-color: #ffebee;
+              border-left: 4px solid #e74c3c;
+            }
+            .do h5, .dont h5 {
+              margin-top: 0;
+              margin-bottom: 10px;
+            }
+          </style>
+          
+          <div class="do">
+            <h5>DO</h5>
+            <code>const win = new BrowserWindow({
+  webPreferences: {
+    contextIsolation: true,
+    preload: path.join(__dirname, 'preload.js')
+  }
+})</code>
+          </div>
+          
+          <div class="dont">
+            <h5>DON'T</h5>
+            <code>const win = new BrowserWindow({
+  webPreferences: {
+    contextIsolation: false,  // INSECURE
+    preload: path.join(__dirname, 'preload.js')
+  }
+})</code>
+          </div>
+        </div>
+        
+        <h4>2. Disable Node Integration in Renderers</h4>
+        <p>Prevent renderers from directly accessing Node.js APIs to reduce security risks.</p>
+        
+        <div class="do-dont">
+          <div class="do">
+            <h5>DO</h5>
+            <code>const win = new BrowserWindow({
+  webPreferences: {
+    nodeIntegration: false,  // Default in Electron 12+
+    contextIsolation: true
+  }
+})</code>
+          </div>
+          
+          <div class="dont">
+            <h5>DON'T</h5>
+            <code>const win = new BrowserWindow({
+  webPreferences: {
+    nodeIntegration: true,  // INSECURE
+  }
+})</code>
+          </div>
+        </div>
+        
+        <h4>3. Implement Safe IPC Communication</h4>
+        <p>Use contextBridge to expose only specific APIs to the renderer process.</p>
+        
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+// Safely expose specific APIs
+contextBridge.exposeInMainWorld('electronAPI', {
+  // Only expose what's needed with data validation
+  saveData: (data) => {
+    // Validate data before sending
+    if (typeof data !== 'string' || data.length > 1000) {
+      throw new Error('Invalid data')
+    }
+    return ipcRenderer.invoke('save-data', data)
+  }
+})</code>
+        
+        <h4>4. Validate All Input</h4>
+        <p>Always validate data received from renderers in the main process.</p>
+        
+        <code>// main.js
+ipcMain.handle('save-data', async (event, data) => {
+  // Validate data before using it
+  if (typeof data !== 'string' || data.length > 1000) {
+    throw new Error('Invalid data')
+  }
+  
+  // Now safe to use
+  await fs.writeFile('path/to/file.txt', data)
+  return { success: true }
+})</code>
+        
+        <h4>5. Use Content Security Policy</h4>
+        <p>Add a strong Content Security Policy to prevent XSS attacks.</p>
+        
+        <code>&lt;meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; script-src 'self';"&gt;</code>
+        
+        <h3>Performance Optimization</h3>
+        
+        <h4>1. Memory Management</h4>
+        <p>Electron apps can consume significant memory if not properly optimized.</p>
+        
+        <ul>
+          <li><strong>Clean up event listeners</strong> - Always remove event listeners when they're no longer needed</li>
+          <li><strong>Release object references</strong> - Set objects to null when you're done with them</li>
+          <li><strong>Avoid global variables</strong> - They persist throughout the application lifecycle</li>
+        </ul>
+        
+        <code>// Good practice for cleanup
+let listener = () => { /* ... */ }
+element.addEventListener('click', listener)
+
+// Later, when no longer needed:
+element.removeEventListener('click', listener)
+listener = null</code>
+        
+        <h4>2. Optimize Resource Loading</h4>
+        <p>How you load resources affects startup time and memory usage.</p>
+        
+        <ul>
+          <li><strong>Use lazy loading</strong> - Load features only when needed</li>
+          <li><strong>Minimize preload script size</strong> - Keep it small and fast</li>
+          <li><strong>Optimize images</strong> - Use appropriate formats and compression</li>
+        </ul>
+        
+        <h4>3. Window Management</h4>
+        <p>Properly managing windows improves performance and user experience.</p>
+        
+        <div class="do-dont">
+          <div class="do">
+            <h5>DO</h5>
+            <ul>
+              <li>Hide windows instead of closing them for quick re-use</li>
+              <li>Use a single window with different views when possible</li>
+              <li>Implement proper garbage collection for closed windows</li>
+            </ul>
+          </div>
+          
+          <div class="dont">
+            <h5>DON'T</h5>
+            <ul>
+              <li>Create new windows for every function</li>
+              <li>Leave background windows fully rendered when not visible</li>
+              <li>Forget to remove references to closed windows</li>
+            </ul>
+          </div>
+        </div>
+        
+        <code>// Store window references properly
+let mainWindow = null
+
+function createMainWindow() {
+  mainWindow = new BrowserWindow({/*...*/})
+  
+  mainWindow.on('closed', () => {
+    // Release the reference
+    mainWindow = null
+  })
+}</code>
+        
+        <h3>Development Workflow Best Practices</h3>
+        
+        <h4>1. Project Structure</h4>
+        <p>A clean, organized structure makes your app easier to maintain.</p>
+        
+        <code>your-app/
+├── package.json
+├── main.js                # Main process code
+├── preload.js             # Preload scripts
+├── src/
+│   ├── main/              # Main process modules
+│   │   ├── menu.js        # Application menu
+│   │   └── ipc-handlers.js # IPC handler functions
+│   └── renderer/          # Renderer process code
+│       ├── index.html     # Main window HTML
+│       ├── app.js         # Renderer JavaScript
+│       └── styles.css     # Styling
+├── assets/                # Images, icons, etc.
+└── dist/                  # Output directory for builds</code>
+        
+        <h4>2. Testing Approaches</h4>
+        <p>Regular testing helps catch bugs before users do.</p>
+        
+        <ul>
+          <li><strong>Unit tests</strong> - Test individual functions with Jest or Mocha</li>
+          <li><strong>Integration tests</strong> - Test IPC communication between processes</li>
+          <li><strong>End-to-end tests</strong> - Use Spectron or Playwright to test the full app</li>
+        </ul>
+        
+        <code>// Example test with Spectron
+const { Application } = require('spectron')
+const assert = require('assert')
+const app = new Application({
+  path: '/path/to/your/electron/app'
+})
+
+describe('Application launch', function () {
+  beforeEach(() => app.start())
+  afterEach(() => app.stop())
+  
+  it('shows an initial window', async function () {
+    const count = await app.client.getWindowCount()
+    assert.strictEqual(count, 1)
+  })
+})</code>
+        
+        <h4>3. Debugging Tips</h4>
+        <p>Effective debugging saves development time.</p>
+        
+        <ul>
+          <li><strong>Use Electron DevTools</strong> - Press F12 or Cmd+Opt+I to open</li>
+          <li><strong>Enable logging</strong> - Add detailed logs in both processes</li>
+          <li><strong>Use electron-debug</strong> - Adds useful debugging shortcuts</li>
+        </ul>
+        
+        <code>// Enable DevTools in development
+if (process.env.NODE_ENV === 'development') {
+  mainWindow.webContents.openDevTools()
+}
+
+// Better error logging
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception:', error)
+  // Log to a file, show to user, etc.
+})</code>
+        
+        <h4>4. Error Handling</h4>
+        <p>Robust error handling improves reliability and user experience.</p>
+        
+        <ul>
+          <li><strong>Try-catch blocks</strong> - Wrap code that might throw errors</li>
+          <li><strong>Error dialogs</strong> - Show user-friendly error messages</li>
+          <li><strong>Error reporting</strong> - Implement crash reporting services</li>
+        </ul>
+        
+        <code>// User-friendly error handling
+try {
+  // Risky operation
+  const result = riskyOperation()
+} catch (error) {
+  dialog.showErrorBox(
+    'Something went wrong', 
+    'We encountered a problem: ' + error.message
+  )
+  console.error('Detailed error:', error)
+}</code>
+        
+        <h3>Security Checklist</h3>
+        <ul>
+          <li>✅ Set contextIsolation: true</li>
+          <li>✅ Set nodeIntegration: false</li>
+          <li>✅ Use a proper Content Security Policy</li>
+          <li>✅ Only expose necessary APIs through contextBridge</li>
+          <li>✅ Validate all data from renderer processes</li>
+          <li>✅ Use HTTPS for all network requests</li>
+          <li>✅ Keep Electron and dependencies up to date</li>
+          <li>✅ Filter and sanitize all user input</li>
+          <li>✅ Implement proper permission handling</li>
+        </ul>
+        
+        <p>By following these best practices, you'll build Electron applications that are more secure, performant, and maintainable. These guidelines will help you avoid common pitfalls and deliver a better experience to your users.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
+

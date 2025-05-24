@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Packaging & Distribution - Electron App Development Documentation</title>
+</head>
+<body>
+  <div class="container">
+    <nav id="navbar">
+      <header>Electron Documentation</header>
+      <a class="nav-link" href="introduction.html">Introduction to Electron</a>
+      <a class="nav-link" href="setup.html">Setup & Installation</a>
+      <a class="nav-link" href="main-renderer.html">Main vs Renderer Process</a>
+      <a class="nav-link" href="first-app.html">Building Your First App</a>
+      <a class="nav-link" href="packaging.html">Packaging & Distribution</a>
+      <a class="nav-link" href="best-practices.html">Best Practices & Security</a>
+    </nav>
+    
+    <main id="main-doc">
+      <section class="main-section" id="Packaging">
+        <header>Packaging & Distribution</header>
+        
+        <p>Once you've built your Electron app, you'll want to share it with others. Packaging turns your code into installable software that users can easily run on their computers.</p>
+        
+        <h3>What is Packaging?</h3>
+        <p>Packaging is the process of bundling your Electron app into an installer or executable file that users can download and run. A packaged app includes:</p>
+        <ul>
+          <li>Your application code (HTML, CSS, JavaScript)</li>
+          <li>The Electron runtime</li>
+          <li>Any dependencies your app needs</li>
+        </ul>
+        
+        <h3>Packaging in 3 Simple Steps</h3>
+        
+        <h4>Step 1: Install electron-builder</h4>
+        <p>electron-builder is a tool that makes packaging Electron apps easy:</p>
+        <code>npm install --save-dev electron-builder</code>
+        
+        <p>Add a build script to your package.json:</p>
+        <code>"scripts": {
+  "start": "electron .",
+  "build": "electron-builder"
+}</code>
+        
+        <h4>Step 2: Basic Configuration</h4>
+        <p>Add these essential settings to your package.json file:</p>
+        <code>{
+  "name": "electronote",
+  "version": "1.0.0",
+  "description": "A simple note-taking app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.example.electronote",
+    "productName": "ElectroNote",
+    "files": ["**/*"],
+    "directories": {
+      "output": "dist"
+    }
+  }
+}</code>
+        
+        <h4>Step 3: Build Your App</h4>
+        <p>Run the build command to create installers for your current platform:</p>
+        <code>npm run build</code>
+        
+        <p>You can build for specific platforms using:</p>
+        <code># For Windows
+npm run build -- --win
+
+# For macOS
+npm run build -- --mac
+
+# For Linux
+npm run build -- --linux</code>
+        
+        <h3>Platform-Specific Setup</h3>
+        
+        <h4>Windows</h4>
+        <p>For Windows, you'll get an installer (.exe) that users can run to install your app.</p>
+        <ul>
+          <li>Add a Windows icon (icon.ico) in a "build" folder</li>
+          <li>Windows builds work on Windows machines only</li>
+        </ul>
+        
+        <h4>macOS</h4>
+        <p>For macOS, you'll get a disk image (.dmg) that users can drag to their Applications folder.</p>
+        <ul>
+          <li>Add a macOS icon (icon.icns) in a "build" folder</li>
+          <li>macOS builds require a Mac for building</li>
+        </ul>
+        
+        <h4>Linux</h4>
+        <p>For Linux, you'll typically get an AppImage that runs on most Linux distributions.</p>
+        <ul>
+          <li>Add a Linux icon (icon.png) in a "build" folder</li>
+          <li>Linux builds work best on Linux machines</li>
+        </ul>
+        
+        <h3>Sharing Your App</h3>
+        
+        <h4>Website Distribution</h4>
+        <p>The easiest way to share your app is through your website:</p>
+        <ul>
+          <li>Create a download page with links to your installers</li>
+          <li>Include simple installation instructions</li>
+          <li>Provide system requirements</li>
+        </ul>
+        
+        <h4>GitHub Releases</h4>
+        <p>If your project is on GitHub, you can use GitHub Releases:</p>
+        <ol>
+          <li>Create a new release on GitHub</li>
+          <li>Upload your installer files</li>
+          <li>Publish the release</li>
+        </ol>
+        
+        <h4>Auto-Updates (Optional)</h4>
+        <p>You can add auto-update capabilities so users always have the latest version:</p>
+        <code>// In your main.js file
+const { autoUpdater } = require('electron-updater')
+
+// Check for updates when the app starts
+app.on('ready', () => {
+  autoUpdater.checkForUpdatesAndNotify()
+})</code>
+        
+        <p>This requires adding electron-updater to your project:</p>
+        <code>npm install --save electron-updater</code>
+        
+        <h3>Packaging Tips</h3>
+        <ul>
+          <li><strong>Keep it simple</strong> - Start with basic settings and add more as needed</li>
+          <li><strong>Test thoroughly</strong> - Always test your packaged app before distributing</li>
+          <li><strong>Start small</strong> - Package for your own platform first, then expand</li>
+          <li><strong>Check file size</strong> - Large apps take longer to download</li>
+        </ul>
+        
+        <p>With these basics, you can now package your ElectroNote app and share it with the world!</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

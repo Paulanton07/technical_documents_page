@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Building Your First App - Electron App Development Documentation</title>
+</head>
+<body>
+  <div class="container">
+    <nav id="navbar">
+      <header>Electron Documentation</header>
+      <a class="nav-link" href="introduction.html">Introduction to Electron</a>
+      <a class="nav-link" href="setup.html">Setup & Installation</a>
+      <a class="nav-link" href="main-renderer.html">Main vs Renderer Process</a>
+      <a class="nav-link" href="first-app.html">Building Your First App</a>
+      <a class="nav-link" href="packaging.html">Packaging & Distribution</a>
+      <a class="nav-link" href="best-practices.html">Best Practices & Security</a>
+    </nav>
+    
+    <main id="main-doc">
+      <section class="main-section" id="FirstApp">
+        <header>Building Your First Electron App</header>
+        <p>In this tutorial, we'll build a simple note-taking application called "ElectroNote" to demonstrate the core concepts of Electron development. This practical example will cover setting up a project structure, creating windows, building a UI, implementing file operations, and adding menu items.</p>
+        
+        <div class="toc-container">
+          <style>
+            .toc-container {
+              background-color: #f8f9fa;
+              border-radius: 8px;
+              padding: 20px;
+              margin: 20px 0;
+              border-left: 4px solid #3498db;
+            }
+            .toc-title {
+              margin-top: 0;
+              color: #2c3e50;
+              font-size: 18px;
+            }
+            .toc-list {
+              list-style-type: none;
+              padding-left: 15px;
+            }
+            .toc-list li {
+              margin-bottom: 8px;
+            }
+            .toc-list a {
+              text-decoration: none;
+              color: #3498db;
+            }
+            .toc-list a:hover {
+              text-decoration: underline;
+            }
+            .step-number {
+              display: inline-block;
+              width: 24px;
+              height: 24px;
+              background-color: #3498db;
+              color: white;
+              border-radius: 50%;
+              text-align: center;
+              line-height: 24px;
+              margin-right: 8px;
+              font-weight: bold;
+              font-size: 14px;
+            }
+            .section-divider {
+              border-top: 1px solid #e0e0e0;
+              margin: 30px 0;
+            }
+          </style>
+          <h4 class="toc-title">Tutorial Contents</h4>
+          <ul class="toc-list">
+            <li><a href="#overview">Project Overview</a></li>
+            <li><a href="#step1">Step 1: Project Setup</a></li>
+            <li><a href="#step2">Step 2: Creating the Main Window</a></li>
+            <li><a href="#step3">Step 3: Building the User Interface</a></li>
+            <li><a href="#step4">Step 4: Styling the UI</a></li>
+            <li><a href="#step5">Step 5: Creating the Preload Script</a></li>
+            <li><a href="#step6">Step 6: Implementing the Renderer</a></li>
+            <li><a href="#step7">Step 7: Implementing File Operations</a></li>
+            <li><a href="#step8">Step 8: Creating the Application Menu</a></li>
+            <li><a href="#step9">Step 9: Running and Testing</a></li>
+            <li><a href="#troubleshooting">Troubleshooting Common Issues</a></li>
+            <li><a href="#nextsteps">Next Steps and Enhancements</a></li>
+          </ul>
+        </div>
+        
+        <h3 id="overview">Project Overview</h3>
+        <p>Our note-taking app will have the following features:</p>
+        <ul>
+          <li>Create, edit, save, and load text notes</li>
+          <li>Autosave notes to the filesystem</li>
+          <li>Custom application menu</li>
+          <li>Simple, clean user interface</li>
+        </ul>
+
+        <div class="section-divider"></div>
+        
+        <h3 id="step1"><span class="step-number">1</span> Project Setup</h3>
+        <p>Let's start by creating a new project structure:</p>
+        <code>mkdir ElectroNote
+cd ElectroNote
+npm init -y
+npm install --save-dev electron</code>
+        
+        <p>Update your package.json to include start script and main entry point:</p>
+        <code>{
+  "name": "electronote",
+  "version": "1.0.0",
+  "description": "A simple Electron note-taking app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  }
+}</code>
+        
+        <p>Create the following file structure:</p>
+        <code>ElectroNote/
+├── package.json
+├── main.js           // Main process
+├── preload.js        // Preload script
+├── renderer.js       // Renderer process script
+├── index.html        // Main UI
+└── styles.css        // Styling</code>
+        
+        <div class="section-divider"></div>
+        
+        <h3 id="step2"><span class="step-number">2</span> Creating the Main Window (main.js)</h3>
+        <p>Create the main.js file with the following code:</p>
+        <code>const { app, BrowserWindow } = require('electron')
+const path = require('path')
+
+let mainWindow
+
+function createWindow() {
+  // Create the browser window
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  // Load the index.html file
+  mainWindow.loadFile('index.html')
+}
+
+// Create window when app is ready
+app.whenReady().then(() => {
+  createWindow()
+  
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+
+// Quit when all windows are closed (Windows & Linux)
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})</code>
+        
+        <p>This sets up the
+        
+        <h3>5. Creating the Preload Script (preload.js)</h3>
+        <p>The preload.js file will set up secure IPC for communication between renderer and main processes:</p>
+        <code>const { contextBridge, ipcRenderer } = require('electron')
+
+// Expose protected methods that allow the renderer process to use
+// specific electron APIs without exposing the entire API
+contextBridge.exposeInMainWorld('electronAPI', {
+  // Note operations
+  saveNote: (content) => ipcRenderer.send('save-note', content),
+  saveNoteAs: (content) => ipcRenderer.send('save-note-as', content),
+  openNote: () => ipcRenderer.send('open-note'),
+  newNote: () => ipcRenderer.send('new-note'),
+  
+  // Listeners
+  onNoteLoaded: (callback) => ipcRenderer.on('note-loaded', (event, data) => callback(data)),
+  onNoteSaved: (callback) => ipcRenderer.on('note-saved', (event, filepath) => callback(filepath)),
+  onError: (callback) => ipcRenderer.on('error', (event, message) => callback(message)),
+  onStatusUpdate: (callback) => ipcRenderer.on('status-update', (event, message) => callback(message))
+})</code>
+        
+        <h3>6. Implementing the Renderer Script (renderer.js)</h3>
+        <p>Create renderer.js to handle the UI interactions:</p>
+        <code>document.addEventListener('DOMContentLoaded', () => {
+  const editor = document.getElementById('editor')
+  const currentFileElement = document.getElementById('current-file')
+  const statusElement = document.getElementById('status')
+  
+  let contentChanged = false
+  
+  // Auto-save functionality (every 30 seconds)
+  setInterval(() => {
+    if (contentChanged) {
+      window.electronAPI.saveNote(editor.value)
+      contentChanged = false
+    }
+  }, 30000)
+  
+  // Track changes to enable auto-save
+  editor.addEventListener('input', () => {
+    contentChanged = true
+    updateStatus('Editing...')
+  })
+  
+  // Handle Ctrl+S shortcut
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault()
+      window.electronAPI.saveNote(editor.value)
+    }
+  })
+  
+  // Listen for note loaded events
+  window.electronAPI.onNoteLoaded((data) => {
+    editor.value = data.content
+    currentFileElement.textContent = data.filepath || 'Untitled'
+    updateStatus('Note loaded')
+  })
+  
+  // Listen for note saved events
+  window.electronAPI.onNoteSaved((filepath) => {
+    currentFileElement.textContent = filepath || 'Untitled'
+    updateStatus('Note saved')
+    contentChanged = false
+  })
+  
+  // Listen for error events
+  window.electronAPI.onError((message) => {
+    updateStatus(`Error: ${message}`)
+  })
+  
+  // Listen for status updates
+  window.electronAPI.onStatusUpdate((message) => {
+    updateStatus(message)
+  })
+  
+  // Helper function to update status
+  function updateStatus(message) {
+    statusElement.textContent = message
+  }
+})</code>
+        
+        <h3>7. Implementing File Operations (back in main.js)</h3>
+        <p>Now, let's add the file operations to main.js. Add these functions after the existing code:</p>
+        <code>// Handle saving notes
+function saveNote(content) {
+  if (currentFilePath) {
+    // Save to existing file
+    fs.writeFileSync(currentFilePath, content)
+    mainWindow.webContents.send('note-saved', currentFilePath)
+  } else {
+    // If no file exists yet, prompt for save location
+    saveNoteAs(content)
+  }
+}
+
+// Handle "Save As" operation
+function saveNoteAs(content) {
+  dialog.showSaveDialog(mainWindow, {
+    title: 'Save Note',
+    defaultPath: app.getPath('documents'),
+    filters: [
+      { name: 'Text Files', extensions: ['txt'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  }).then(result => {
+    if (!result.canceled && result.filePath) {
+      fs.writeFileSync(result.filePath, content)
+      currentFilePath = result.filePath
+      mainWindow.webContents.send('note-saved', result.filePath)
+    }
+  }).catch(err => {
+    mainWindow.webContents.send('error', 'Failed to save file')
+    console.error(err)
+  })
+}
+
+// Handle opening notes
+function openNote() {
+  dialog.showOpenDialog(mainWindow, {
+    title: 'Open Note',
+    defaultPath: app.getPath('documents'),
+    filters: [
+      { name: 'Text Files', extensions: ['txt'] },
+      { name: 'All Files', extensions: ['*'] }
+    ],
+    properties: ['openFile']
+  }).then(result => {
+    if (!result.canceled && result.filePaths.length > 0) {
+      const filepath = result.filePaths[0]
+      const content = fs.readFileSync(filepath, 'utf8')
+      currentFilePath = filepath
+      mainWindow.webContents.send('note-loaded', { 
+        filepath: filepath, 
+        content: content 
+      })
+    }
+  }).catch(err => {
+    mainWindow.webContents.send('error', 'Failed to open file')
+    console.error(err)
+  })
+}
+
+// Handle creating a new note
+function newNote() {
+  // Prompt to save if there's a current file
+  if (currentFilePath) {
+    const choice = dialog.showMessageBoxSync(mainWindow, {
+      type: 'question',
+      buttons: ['Yes', 'No', 'Cancel'],
+      title: 'Confirm',
+      message: 'Do you want to save the current note before creating a new one?'
+    })
+    
+    if (choice === 0) {
+      // User chose "Yes" - save current note
+      mainWindow.webContents.send('request-save-content', {})
+      // The save operation will continue asynchronously
+    } else if (choice === 2) {
+      // User chose "Cancel" - abort creating a new note
+      return
+    }
+  }
+  
+  // Create a new note
+  currentFilePath = null
+  mainWindow.webContents.send('note-loaded', { 
+    filepath: null, 
+    content: '' 
+  })
+}</code>
+        
+        <p>Add these IPC handlers inside the app.whenReady().then() block:</p>
+        <code>  // Set up IPC handlers for note operations
+  ipcMain.on('save-note', (event, content) => {
+    saveNote(content)
+  })
+  
+  ipcMain.on('save-note-as', (event, content) => {
+    saveNoteAs(content)
+  })
+  
+  ipcMain.on('open-note', () => {
+    openNote()
+  })
+  
+  ipcMain.on('new-note', () => {
+    newNote()
+  })</code>
+        
+        <h3>8. Creating the Application Menu</h3>
+        <p>Add this function to main.js to create a custom application menu:</p>
+        <code>function createMenu() {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Note',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => { newNote() }
+        },
+        {
+          label: 'Open',
+          accelerator: 'CmdOrCtrl+O',
+          click: () => { openNote() }
+        },
+        {
+          label: 'Save',
+          accelerator: 'CmdOrCtrl+S',
+          click: () => { 
+            mainWindow.webContents.send('request-save-content')
+          }
+        },
+        {
+          label: 'Save As',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click: () => {
+            mainWindow.webContents.send('request-save-as-content')
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Exit',
+          accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4',
+          click: () => { app.quit() }
+        }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'delete' },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'About ElectroNote',
+          click: () => {
+            dialog.showMessageBox(mainWindow, {
+              title: 'About ElectroNote',
+              message: 'ElectroNote v1.0.0\nA simple note-taking app built with Electron.',
+              buttons: ['OK']
+            })
+          }
+        }
+      ]
+    }
+  ]
+  
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}</code>
+        
+        <h3>9. Running and Testing the Application</h3>
+        <p>Now that we've implemented all the required functionality, let's run our app:</p>
+        <code>npm start</code>
+        
+        <p>You should see a window with the ElectroNote interface. Try creating a note, saving it, and opening it again to test the functionality.</p>
+        
+        <h4>Testing Features</h4>
+        <p>Make sure to test the following functionality:</p>
+        <ul>
+          <li>Creating a new note with File → New Note or Ctrl+N</li>
+          <li>Opening an existing note with File → Open or Ctrl+O</li>
+          <li>Saving a note with File → Save or Ctrl+S</li>
+          <li>Saving to a different location with File → Save As</li>
+          <li>Auto-save functionality (wait 30 seconds after making changes)</li>
+          <li>Application menu functionality</li>
+          <li>UI responsiveness and styling</li>
+        </ul>
+        
+        <h3>10. Common Troubleshooting</h3>
+        <p>Here are some common issues you might encounter and how to fix them:</p>
+        
+        <h4>White Screen or Blank Window</h4>
+        <ul>
+          <li><strong>Cause:</strong> Incorrect path to HTML file or JavaScript errors</li>
+          <li><strong>Solution:</strong> 
+            <ul>
+              <li>Check the path in mainWindow.loadFile()</li>
+              <li>Open DevTools (View → Toggle Developer Tools) to see error messages</li>
+              <li>Verify all files are in the correct location</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h4>IPC Communication Not Working</h4>
+        <ul>
+          <li><strong>Cause:</strong> Preload script not properly configured or IPC channels mismatched</li>
+          <li><strong>Solution:</strong> 
+            <ul>
+              <li>Verify that preload.js path is correct in the BrowserWindow options</li>
+              <li>Check that IPC channel names match between sender and receiver</li>
+              <li>Ensure contextIsolation is properly configured</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h4>File Operations Failing</h4>
+        <ul>
+          <li><strong>Cause:</strong> File permission issues or incorrect paths</li>
+          <li><strong>Solution:</strong> 
+            <ul>
+              <li>Check file permissions</li>
+              <li>Use absolute paths where possible</li>
+              <li>Add error handling with try/catch blocks around file operations</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h3>11. Next Steps and Enhancements</h3>
+        <p>Here are some ways you could enhance ElectroNote:</p>
+        
+        <h4>Feature Improvements</h4>
+        <ul>
+          <li><strong>Rich Text Editing:</strong> Replace the plain textarea with a rich text editor like TinyMCE or Quill</li>
+          <li><strong>Markdown Support:</strong> Add markdown parsing and preview</li>
+          <li><strong>File Format Options:</strong> Support multiple file formats (.md, .rtf, etc.)</li>
+          <li><strong>Cloud Sync:</strong> Add the ability to sync notes with a cloud service</li>
+          <li><strong>Multiple Windows:</strong> Support multiple note windows simultaneously</li>
+        </ul>
+        
+        <h4>Technical Improvements</h4>
+        <ul>
+          <li><strong>State Management:</strong> Implement proper state management (Redux, MobX, etc.)</li>
+          <li><strong>Database Storage:</strong> Use a database like SQLite to store notes locally</li>
+          <li><strong>Error Logging:</strong> Add comprehensive error logging</li>
+          <li><strong>Auto-updates:</strong> Implement automatic updates using electron-updater</li>
+          <li><strong>Testing:</strong> Add unit and integration tests with Spectron</li>
+        </ul>
+        
+        <h4>UI/UX Improvements</h4>
+        <ul>
+          <li><strong>Dark Mode:</strong> Add support for light/dark themes</li>
+          <li><strong>Customizable Interface:</strong> Allow users to customize fonts, colors, etc.</li>
+          <li><strong>Keyboard Shortcuts:</strong> Add more keyboard shortcuts for common actions</li>
+          <li><strong>Note Organization:</strong> Add tags, folders, or categories for better organization</li>
+        </ul>
+        
+        <p>This completes our tutorial for building a simple ElectroNote application with Electron! The next step would be to learn how to package your application for distribution, which is covered in the <a href="packaging.html">Packaging & Distribution</a> section.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
+

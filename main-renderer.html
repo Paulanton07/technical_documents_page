@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Main vs Renderer Process - Electron App Development Documentation</title>
+</head>
+<body>
+  <div class="container">
+    <nav id="navbar">
+      <header>Electron Documentation</header>
+      <a class="nav-link" href="introduction.html">Introduction to Electron</a>
+      <a class="nav-link" href="setup.html">Setup & Installation</a>
+      <a class="nav-link" href="main-renderer.html">Main vs Renderer Process</a>
+      <a class="nav-link" href="first-app.html">Building Your First App</a>
+      <a class="nav-link" href="packaging.html">Packaging & Distribution</a>
+      <a class="nav-link" href="best-practices.html">Best Practices & Security</a>
+    </nav>
+    
+    <main id="main-doc">
+      <section class="main-section" id="MainVsRenderer">
+        <header>Main vs Renderer Process</header>
+        
+        <p>One of Electron's most important concepts is its two-process architecture. Understanding how these processes work and communicate is key to building effective Electron apps.</p>
+        
+        <h3>The Two-Process Model</h3>
+        
+        <div class="process-diagram">
+          <style>
+            .process-diagram {
+              margin: 30px 0;
+              text-align: center;
+            }
+            .diagram-container {
+              display: inline-flex;
+              background: #f8f9fa;
+              border-radius: 8px;
+              padding: 20px;
+              box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            }
+            .process-box {
+              width: 200px;
+              padding: 15px;
+              margin: 10px;
+              border-radius: 6px;
+              text-align: center;
+            }
+            .main-process {
+              background-color: #3498db;
+              color: white;
+            }
+            .renderer-process {
+              background-color: #2ecc71;
+              color: white;
+            }
+            .ipc-arrow {
+              display: flex;
+              align-items: center;
+              color: #7f8c8d;
+              font-weight: bold;
+              padding: 0 15px;
+            }
+          </style>
+          <div class="diagram-container">
+            <div class="process-box main-process">
+              <h4>Main Process</h4>
+              <p>Controls app lifecycle<br>Access to OS APIs<br>Single instance</p>
+            </div>
+            <div class="ipc-arrow">
+              IPC ↔
+            </div>
+            <div class="process-box renderer-process">
+              <h4>Renderer Process</h4>
+              <p>Controls UI<br>Runs web content<br>Multiple instances</p>
+            </div>
+          </div>
+        </div>
+        
+        <h3>The Main Process</h3>
+        <p>The main process is the entry point to your Electron application - the file specified in your package.json's "main" field (usually main.js).</p>
+        
+        <h4>What the Main Process Does:</h4>
+        <ul>
+          <li>Creates and manages application windows (BrowserWindow instances)</li>
+          <li>Controls application lifecycle (start, quit, etc.)</li>
+          <li>Accesses native operating system APIs (menus, dialogs, etc.)</li>
+          <li>Handles system-level operations (file access, network requests)</li>
+          <li>Coordinates communication between renderer processes</li>
+        </ul>
+        
+        <p>The main process is like the "back-end" of your Electron app. It runs as a Node.js process and has full access to the Node.js APIs.</p>
+        
+        <h4>Sample Main Process Code:</h4>
+        <code>// main.js - The Main Process
+const { app, BrowserWindow } = require('electron')
+
+// Create a window when the app is ready
+app.whenReady().then(() => {
+  // Create a new browser window
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      // Security settings
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  })
+  
+  // Load HTML file into the window
+  mainWindow.loadFile('index.html')
+})</code>
+        
+        <h3>The Renderer Process</h3>
+        <p>Every window in an Electron app runs in its own separate renderer process. These processes display the user interface and run the web content (HTML, CSS, and JavaScript).</p>
+        
+        <h4>What Renderer Processes Do:</h4>
+        <ul>
+          <li>Display web content (HTML, CSS, JavaScript)</li>
+          <li>Handle user interactions and UI events</li>
+          <li>Render visual elements and animations</li>
+          <li>Process user input</li>
+          <li>Execute frontend logic</li>
+        </ul>
+        
+        <p>Renderer processes are like browser tabs - each one is isolated and runs independently. They're based on Chromium and behave much like a web page.</p>
+        
+        <h4>Sample Renderer Content:</h4>
+        <code><!-- index.html - Displayed in a Renderer Process -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Electron App</title>
+</head>
+<body>
+  <h1>Hello from the Renderer Process!</h1>
+  <button id="sendMessage">Send Message to Main</button>
+  
+  <script src="renderer.js"></script>
+</body>
+</html></code>
+        
+        <h3>Communication Between Processes (IPC)</h3>
+        <p>The main and renderer processes can't directly access each other's variables or functions. Instead, they communicate using Inter-Process Communication (IPC).</p>
+        
+        <div class="process-diagram">
+          <div class="diagram-container" style="flex-direction: column; align-items: center;">
+            <div class="process-box main-process" style="width: 300px;">
+              Main Process
+            </div>
+            <div style="height: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+              <div>↑ ipcMain.on('channel', handler)</div>
+              <div>↓ webContents.send('channel', data)</div>
+            </div>
+            <div class="process-box renderer-process" style="width: 300px;">
+              Renderer Process
+            </div>
+            <div style="height: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+              <div>↑ ipcRenderer.send('channel', data)</div>
+              <div>↓ ipcRenderer.on('channel', handler)</div>
+            </div>
+          </div>
+        </div>
+        
+        <h4>Setting Up IPC Communication:</h4>
+        <p>Modern Electron apps use a preload script with contextBridge for secure IPC communication:</p>
+        
+        <h5>1. Create a Preload Script</h5>
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+// Expose IPC functions to the renderer process
+contextBridge.exposeInMainWorld('electronAPI', {
+  // Send a message to the main process
+  sendMessage: (message) => ipcRenderer.send('message', message),
+  
+  // Receive messages from the main process
+  onReceiveMessage: (callback) => ipcRenderer.on('reply', (event, data) => callback(data))
+})</code>
+        
+        <h5>2. Configure the Main Process to Use the Preload Script</h5>
+        <code>// In your main.js file
+const mainWindow = new BrowserWindow({
+  webPreferences: {
+    preload: path.join(__dirname, 'preload.js'),
+    contextIsolation: true,
+    nodeIntegration: false
+  }
+})</code>
+        
+        <h5>3. Set Up IPC Handlers in the Main Process</h5>
+        <code>// In your main.js file
+const { ipcMain } = require('electron')
+
+// Listen for messages from renderer
+ipcMain.on('message', (event, message) => {
+  console.log('Received from renderer:', message)
+  
+  // Reply back to the renderer
+  event.sender.send('reply', 'Message received!')
+})</code>
+        
+        <h5>4. Use the API in the Renderer Process</h5>
+        <code>// In your renderer.js file
+document.getElementById('sendMessage').addEventListener('click', () => {
+  // Send a message to the main process
+  window.electronAPI.sendMessage('Hello from renderer!')
+})
+
+// Handle replies from the main process
+window.electronAPI.onReceiveMessage((data) => {
+  console.log('Main process says:', data)
+})</code>
+        
+        <h3>Practical Use Cases</h3>
+        
+        <h4>Use Case 1: Save a File</h4>
+        <p>The renderer process needs the main process to save data to a file:</p>
+        
+        <h5>Preload Script:</h5>
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  saveFile: (content) => ipcRenderer.invoke('save-file', content),
+})</code>
+        
+        <h5>Main Process:</h5>
+        <code>// main.js
+const { ipcMain, dialog } = require('electron')
+const fs = require('fs')
+
+ipcMain.handle('save-file', async (event, content) => {
+  const { filePath } = await dialog.showSaveDialog({
+    buttonLabel: 'Save',
+    defaultPath: 'file.txt'
+  })
+  
+  if (!filePath) return 'cancelled'
+  
+  // Write file (only possible in main process)
+  fs.writeFileSync(filePath, content)
+  return 'saved'
+})</code>
+        
+        <h5>Renderer Process:</h5>
+        <code>// renderer.js
+document.getElementById('saveButton').addEventListener('click', async () => {
+  const content = document.getElementById('editor').value
+  const result = await window.electronAPI.saveFile(content)
+  
+  if (result === 'saved') {
+    alert('File saved successfully!')
+  }
+})</code>
+        
+        <h4>Use Case 2: App Notifications</h4>
+        <p>The main process sends notifications to all renderer processes:</p>
+        
+        <h5>Preload Script:</h5>
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  onNotification: (callback) => 
+    ipcRenderer.on('notification', (event, message) => callback(message))
+})</code>
+        
+        <h5>Main Process:</h5>
+        <code>// main.js
+function sendNotificationToAll(message) {
+  // Send to all windows
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.webContents.send('notification', message)
+  })
+}
+
+// Example: Send a notification after 5 seconds
+setTimeout(() => {
+  sendNotificationToAll('This is a notification from the main process')
+}, 5000)</code>
+        
+        <h5>Renderer Process:</h5>
+        <code>// renderer.js
+window.electronAPI.onNotification((message) => {
+  // Show notification in the UI
+  const element = document.getElementById('notifications')
+  const notification = document.createElement('div')
+  notification.textContent = message
+  element.appendChild(notification)
+})</code>
+        
+        <h3>Common Troubleshooting</h3>
+        
+        <h4>Issue: IPC Not Working</h4>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Check that the preload script path is correct</li>
+          <li>Ensure contextIsolation is enabled</li>
+          <li>Verify channel names match exactly in main and renderer processes</li>
+          <li>Check console for errors (main process logs and DevTools)</li>
+        </ul>
+        
+        <h4>Issue: "Object has been destroyed" Error</h4>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Ensure you're not trying to communicate with a destroyed window</li>
+          <li>Use event.sender.isDestroyed() check before sending replies</li>
+          <li>Store window references carefully in the main process</li>
+        </ul>
+        
+        <h4>Issue: Security Warnings</h4>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Always use contextIsolation: true</li>
+          <li>Keep nodeIntegration: false</li>
+          <li>Expose only the minimum functionality needed through contextBridge</li>
+          <li>Validate all data received from renderer processes</li>
+        </ul>
+        
+        <h3>Best Practices</h3>
+        <ul>
+          <li><strong>Keep it simple</strong> - Use clear channel names that describe what they do</li>
+          <li><strong>Use invoke/handle</strong> - For request/response patterns, use ipcRenderer.invoke and ipcMain.handle</li>
+          <li><strong>Validate all data</strong> - Never trust data from the renderer without validation</li>
+          <li><strong>Expose only what's needed</strong> - Limit what's available through the contextBridge</li>
+          <li><strong>Organize channels</strong> - Group related functionality into logical API sections</li>
+        </ul>
+        
+        <p>Now that you understand how the main and renderer processes work together, you're ready to build more complex Electron applications. Check out <a href="first-app.html">Building Your First App</a> to put these concepts into practice.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Setup & Installation - Electron App Development Documentation</title>
+</head>
+<body>
+  <div class="container">
+    <nav id="navbar">
+      <header>Electron Documentation</header>
+      <a class="nav-link" href="introduction.html">Introduction to Electron</a>
+      <a class="nav-link" href="setup.html">Setup & Installation</a>
+      <a class="nav-link" href="main-renderer.html">Main vs Renderer Process</a>
+      <a class="nav-link" href="first-app.html">Building Your First App</a>
+      <a class="nav-link" href="packaging.html">Packaging & Distribution</a>
+      <a class="nav-link" href="best-practices.html">Best Practices & Security</a>
+    </nav>
+    
+    <main id="main-doc">
+      <section class="main-section" id="Setup">
+        <header>Setup & Installation</header>
+        
+        <p>This section will help you set up everything you need to start developing Electron applications. The process is straightforward and requires just a few tools.</p>
+        
+        <h3>Prerequisites</h3>
+        <p>Before you begin, make sure you have the following installed:</p>
+        <ul>
+          <li><strong>Node.js & npm</strong> - Electron requires Node.js version 14.0.0 or higher</li>
+          <li><strong>Code editor</strong> - We recommend Visual Studio Code, but any editor works</li>
+          <li><strong>Git</strong> - Optional but useful for version control</li>
+        </ul>
+        
+        <h4>Installing Node.js</h4>
+        <p>Download and install Node.js from <a href="https://nodejs.org/" target="_blank">nodejs.org</a>. The LTS (Long Term Support) version is recommended.</p>
+        
+        <p>After installation, verify it's working by opening a terminal or command prompt and typing:</p>
+        <code>node --version
+npm --version</code>
+        
+        <p>Both commands should display version numbers, confirming successful installation.</p>
+        
+        <h3>Creating Your First Electron Project</h3>
+        <p>Follow these steps to create a basic Electron application:</p>
+        
+        <h4>Step 1: Create a Project Folder</h4>
+        <p>Open your terminal and run these commands:</p>
+        <code># Create a new folder
+mkdir my-electron-app
+cd my-electron-app</code>
+        
+        <h4>Step 2: Initialize Your Project</h4>
+        <p>Create a new npm project:</p>
+        <code>npm init -y</code>
+        
+        <p>This creates a package.json file with default values.</p>
+        
+        <h4>Step 3: Install Electron</h4>
+        <p>Add Electron as a development dependency:</p>
+        <code>npm install --save-dev electron</code>
+        
+        <h4>Step 4: Update package.json</h4>
+        <p>Open the package.json file and add a start script:</p>
+        <code>{
+  "name": "my-electron-app",
+  "version": "1.0.0",
+  "description": "My first Electron app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^latest-version"
+  }
+}</code>
+        
+        <h4>Step 5: Create Basic Files</h4>
+        <p>Create the following files in your project folder:</p>
+        
+        <p>main.js (the entry point for your app):</p>
+        <code>const { app, BrowserWindow } = require('electron')
+const path = require('path')
+
+// Create the browser window
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  })
+
+  // Load the HTML file
+  win.loadFile('index.html')
+}
+
+// When Electron is ready, create the window
+app.whenReady().then(() => {
+  createWindow()
+
+  // On macOS, re-create a window when dock icon is clicked
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+
+// Quit the app when all windows are closed (except on macOS)
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})</code>
+        
+        <p>index.html (the user interface):</p>
+        <code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Hello Electron!&lt;/title&gt;
+  &lt;meta http-equiv="Content-Security-Policy" content="script-src 'self';"&gt;
+  &lt;style&gt;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #2c3e50;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="container"&gt;
+    &lt;h1&gt;Hello Electron!&lt;/h1&gt;
+    &lt;p&gt;Welcome to your first Electron app.&lt;/p&gt;
+    &lt;p&gt;If you can see this, congratulations - you've successfully set up Electron!&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+        
+        <h4>Step 6: Run Your App</h4>
+        <p>Start your Electron app with:</p>
+        <code>npm start</code>
+        
+        <p>If everything is set up correctly, you should see a window with "Hello Electron!" displayed.</p>
+        
+        <h3>Project Structure</h3>
+        <p>At this point, your project should have this basic structure:</p>
+        <code>my-electron-app/
+├── node_modules/
+├── index.html
+├── main.js
+├── package.json
+└── package-lock.json</code>
+        
+        <h3>Troubleshooting Common Issues</h3>
+        
+        <h4>Issue: "electron: command not found"</h4>
+        <p><strong>Solution:</strong> This usually means Electron isn't installed correctly. Try these steps:</p>
+        <ul>
+          <li>Ensure you ran npm install in the right directory</li>
+          <li>Try installing Electron globally: <code>npm install -g electron</code></li>
+          <li>Use npx to run it: <code>npx electron .</code></li>
+        </ul>
+        
+        <h4>Issue: Blank/white screen</h4>
+        <p><strong>Solution:</strong> Check for these common causes:</p>
+        <ul>
+          <li>Make sure the path to index.html is correct in main.js</li>
+          <li>Check for JavaScript errors in the DevTools (press Ctrl+Shift+I or Cmd+Option+I)</li>
+          <li>Verify that all required files exist</li>
+        </ul>
+        
+        <h4>Issue: Security warnings</h4>
+        <p><strong>Solution:</strong> Modern Electron apps should use secure settings:</p>
+        <ul>
+          <li>Set nodeIntegration: false</li>
+          <li>Set contextIsolation: true</li>
+          <li>Add a Content Security Policy in your HTML</li>
+        </ul>
+        
+        <h3>Next Steps</h3>
+        <p>Now that you have a basic Electron app running, you're ready to learn more about how Electron works.</p>
+        
+        <p>Check out the <a href="main-renderer.html">Main vs Renderer Process</a> section to understand Electron's architecture, or jump to <a href="first-app.html">Building Your First App</a> to create something more useful.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

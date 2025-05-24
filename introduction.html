@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <title>Introduction to Electron - Electron App Development Documentation</title>
+</head>
+<body>
+  <div class="container">
+    <nav id="navbar">
+      <header>Electron Documentation</header>
+      <a class="nav-link" href="introduction.html">Introduction to Electron</a>
+      <a class="nav-link" href="setup.html">Setup & Installation</a>
+      <a class="nav-link" href="main-renderer.html">Main vs Renderer Process</a>
+      <a class="nav-link" href="first-app.html">Building Your First App</a>
+      <a class="nav-link" href="packaging.html">Packaging & Distribution</a>
+      <a class="nav-link" href="best-practices.html">Best Practices & Security</a>
+    </nav>
+    
+    <main id="main-doc">
+      <section class="main-section" id="Introduction">
+        <header>Introduction to Electron</header>
+        
+        <h3>What is Electron?</h3>
+        <p>Electron is an open-source framework that allows you to build desktop applications using web technologies like JavaScript, HTML, and CSS. Created by GitHub, it combines the Chromium rendering engine (which powers Google Chrome) with Node.js to let you build cross-platform desktop apps.</p>
+        
+        <p>In simple terms, Electron lets you take your web development skills and use them to create desktop software that runs on Windows, macOS, and Linux.</p>
+        
+        <h3>Why Use Electron?</h3>
+        <p>There are several reasons to choose Electron for building desktop applications:</p>
+        <ul>
+          <li><strong>Familiar technology</strong> - If you know how to build websites, you already know most of what you need for Electron</li>
+          <li><strong>Cross-platform</strong> - Write once, run on Windows, macOS, and Linux</li>
+          <li><strong>Rich ecosystem</strong> - Access to both npm packages and browser APIs</li>
+          <li><strong>Fast development</strong> - Rapid prototyping and development compared to native apps</li>
+          <li><strong>Modern UI</strong> - Create sleek, modern interfaces using CSS</li>
+        </ul>
+        
+        <h3>Key Features</h3>
+        <ul>
+          <li><strong>Native APIs</strong> - Access file system, notifications, menus, and other desktop features</li>
+          <li><strong>Auto-updates</strong> - Built-in mechanisms to keep your apps up to date</li>
+          <li><strong>Debugging</strong> - Use Chromium DevTools for easy debugging</li>
+          <li><strong>Packaging</strong> - Simple ways to package and distribute your app</li>
+          <li><strong>Crash reporting</strong> - Tools to track and fix issues</li>
+        </ul>
+        
+        <h3>Basic Architecture</h3>
+        <p>Electron apps have a simple but powerful architecture based on two types of processes:</p>
+        
+        <h4>Main Process</h4>
+        <p>The main process is the entry point of your application. It has access to operating system APIs and controls the application lifecycle. Think of it as the "backend" of your Electron app.</p>
+        
+        <h4>Renderer Process</h4>
+        <p>The renderer process handles the user interface. Each window in your app runs in a separate renderer process, similar to how browser tabs work. This is where your HTML, CSS, and frontend JavaScript runs.</p>
+        
+        <p>These processes communicate with each other using a system called Inter-Process Communication (IPC). We'll cover this in more detail in the Main vs. Renderer Process section.</p>
+        
+        <h3>Popular Apps Built with Electron</h3>
+        <p>You probably already use several Electron apps without realizing it:</p>
+        <ul>
+          <li><strong>Visual Studio Code</strong> - Microsoft's popular code editor</li>
+          <li><strong>Slack</strong> - Team communication platform</li>
+          <li><strong>Discord</strong> - Voice, video, and text chat app</li>
+          <li><strong>WhatsApp Desktop</strong> - Desktop version of the messaging app</li>
+          <li><strong>Twitch</strong> - Streaming platform's desktop app</li>
+          <li><strong>GitHub Desktop</strong> - Git management tool</li>
+        </ul>
+        
+        <h3>Getting Started</h3>
+        <p>Ready to build your first Electron app? The next sections will guide you through:</p>
+        <ol>
+          <li>Setting up your development environment</li>
+          <li>Understanding the main and renderer processes</li>
+          <li>Building a simple note-taking app</li>
+          <li>Packaging your app for distribution</li>
+        </ol>
+        
+        <p>Let's start with <a href="setup.html">Setup & Installation</a> to get your environment ready.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
+
