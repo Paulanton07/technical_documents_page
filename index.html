@@ -10,28 +10,275 @@
   <div class="container">
     <nav id="navbar">
       <header>Electron Documentation</header>
-      <a class="nav-link" href="introduction.html">Introduction to Electron</a>
-      <a class="nav-link" href="setup.html">Setup & Installation</a>
-      <a class="nav-link" href="main-renderer.html">Main vs Renderer Process</a>
-      <a class="nav-link" href="first-app.html">Building Your First App</a>
-      <a class="nav-link" href="packaging.html">Packaging & Distribution</a>
-      <a class="nav-link" href="best-practices.html">Best Practices & Security</a>
+      <a class="nav-link" href="#Introduction_to_Electron">Introduction to Electron</a>
+      <a class="nav-link" href="#Setup_and_Installation">Setup and Installation</a>
+      <a class="nav-link" href="#Main_vs_Renderer_Process">Main vs Renderer Process</a>
+      <a class="nav-link" href="#Building_Your_First_App">Building Your First App</a>
+      <a class="nav-link" href="#Packaging_and_Distribution">Packaging and Distribution</a>
+      <a class="nav-link" href="#Best_Practices_and_Security">Best Practices and Security</a>
     </nav>
     
     <main id="main-doc">
-      <section class="main-section" id="Introduction">
+      <section class="main-section" id="Introduction_to_Electron">
         <header>Introduction to Electron</header>
-        <p>Welcome to the Electron documentation. This guide will help you learn how to build cross-platform desktop applications using JavaScript, HTML, and CSS.</p>
-        <p>Electron is an open-source framework developed by GitHub that allows developers to build desktop applications using web technologies. It combines the Chromium rendering engine and Node.js runtime to create a powerful environment for building modern desktop apps.</p>
-        <h3>Key Features of Electron:</h3>
-        <ul>
-          <li>Cross-platform compatibility (Windows, macOS, Linux)</li>
-          <li>Access to Node.js APIs and npm packages</li>
-          <li>Native desktop application capabilities</li>
-          <li>Automatic updates and crash reporting</li>
-          <li>Native menus and notifications</li>
-        </ul>
-        <p>This documentation will guide you through setting up, developing, and distributing your first Electron application.</p>
+        
+        <p>Electron is an open-source framework that allows you to build desktop applications using web technologies like JavaScript, HTML, and CSS. Created by GitHub, it combines the Chromium rendering engine (which powers Google Chrome) with Node.js to let you build cross-platform desktop apps.</p>
+        
+        <p>In simple terms, Electron lets you take your web development skills and use them to create desktop software that runs on Windows, macOS, and Linux.</p>
+        
+        <p>There are several reasons to choose Electron for building desktop applications. First, you get familiar technology - if you know how to build websites, you already know most of what you need for Electron. Second, it's cross-platform - write once, run on Windows, macOS, and Linux.</p>
+        
+        <p>Electron provides access to a rich ecosystem with both npm packages and browser APIs. You get fast development cycles with rapid prototyping and development compared to native apps. Plus, you can create sleek, modern interfaces using CSS.</p>
+        
+        <p>Key features include native APIs for accessing file system, notifications, menus, and other desktop features. Auto-updates provide built-in mechanisms to keep your apps up to date. You can use Chromium DevTools for easy debugging.</p>
+        
+        <code>const { app, BrowserWindow } = require('electron')
+
+function createWindow () {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600
+  })
+  mainWindow.loadFile('index.html')
+}
+
+app.whenReady().then(createWindow)</code>
+        
+        <p>Electron apps have a simple but powerful architecture based on two types of processes: the main process and renderer processes.</p>
+        
+        <p>The main process is the entry point of your application. It has access to operating system APIs and controls the application lifecycle. Think of it as the "backend" of your Electron app.</p>
+        
+        <p>The renderer process handles the user interface. Each window in your app runs in a separate renderer process, similar to how browser tabs work. This is where your HTML, CSS, and frontend JavaScript runs.</p>
+        
+        <p>These processes communicate with each other using a system called Inter-Process Communication (IPC). We'll cover this in more detail in the Main vs Renderer Process section.</p>
+        
+        <p>You probably already use several Electron apps without realizing it: Visual Studio Code, Slack, Discord, WhatsApp Desktop, Twitch, and GitHub Desktop are all built with Electron.</p>
+      </section>
+
+      <section class="main-section" id="Setup_and_Installation">
+        <header>Setup and Installation</header>
+        
+        <p>This section will help you set up everything you need to start developing Electron applications. The process is straightforward and requires just a few tools.</p>
+        
+        <p>Before you begin, make sure you have Node.js & npm installed - Electron requires Node.js version 14.0.0 or higher. You'll also want a code editor - we recommend Visual Studio Code, but any editor works.</p>
+        
+        <p>Download and install Node.js from nodejs.org. The LTS (Long Term Support) version is recommended for stability and long-term support.</p>
+        
+        <p>After installation, verify it's working by opening a terminal or command prompt and checking the versions of both Node.js and npm.</p>
+        
+        <code>node --version
+npm --version</code>
+        
+        <p>Both commands should display version numbers, confirming successful installation. If you see version numbers, you're ready to proceed with creating your first Electron project.</p>
+        
+        <p>To create your first Electron project, start by creating a new folder and navigating into it using your terminal.</p>
+        
+        <code># Create a new folder
+mkdir my-electron-app
+cd my-electron-app</code>
+        
+        <p>Next, initialize a new npm project which will create a package.json file with default values.</p>
+        
+        <code>npm init -y</code>
+        
+        <p>Now install Electron as a development dependency in your project. This downloads Electron and adds it to your project's dependencies.</p>
+        
+        <code>npm install --save-dev electron</code>
+        
+        <p>Update your package.json file to include a start script that will launch your Electron application during development.</p>
+        
+        <code>{
+  "name": "my-electron-app",
+  "version": "1.0.0",
+  "description": "My first Electron app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  }
+}</code>
+      </section>
+
+      <section class="main-section" id="Main_vs_Renderer_Process">
+        <header>Main vs Renderer Process</header>
+        
+        <p>One of Electron's most important concepts is its two-process architecture. Understanding how these processes work and communicate is key to building effective Electron apps.</p>
+        
+        <p>The main process is the entry point to your Electron application - the file specified in your package.json's "main" field (usually main.js).</p>
+        
+        <p>The main process creates and manages application windows (BrowserWindow instances), controls application lifecycle (start, quit, etc.), and accesses native operating system APIs (menus, dialogs, etc.).</p>
+        
+        <p>The main process handles system-level operations like file access and network requests, and coordinates communication between renderer processes.</p>
+        
+        <code>// main.js - The Main Process
+const { app, BrowserWindow } = require('electron')
+
+app.whenReady().then(() => {
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  })
+  
+  mainWindow.loadFile('index.html')
+})</code>
+        
+        <p>Every window in an Electron app runs in its own separate renderer process. These processes display the user interface and run the web content (HTML, CSS, and JavaScript).</p>
+        
+        <p>Renderer processes display web content, handle user interactions and UI events, render visual elements and animations, process user input, and execute frontend logic.</p>
+        
+        <p>Renderer processes are like browser tabs - each one is isolated and runs independently. They're based on Chromium and behave much like a web page.</p>
+        
+        <p>The main and renderer processes can't directly access each other's variables or functions. Instead, they communicate using Inter-Process Communication (IPC).</p>
+        
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  sendMessage: (message) => ipcRenderer.send('message', message),
+  onReceiveMessage: (callback) => ipcRenderer.on('reply', callback)
+})</code>
+      </section>
+
+      <section class="main-section" id="Building_Your_First_App">
+        <header>Building Your First App</header>
+        
+        <p>In this tutorial, we'll build a simple note-taking application called "ElectroNote" to demonstrate the core concepts of Electron development.</p>
+        
+        <p>Our note-taking app will have the following features: create, edit, save, and load text notes; autosave notes to the filesystem; custom application menu; and a simple, clean user interface.</p>
+        
+        <p>Let's start by creating a new project structure. First, create a directory for your app and initialize it as an npm project.</p>
+        
+        <code>mkdir ElectroNote
+cd ElectroNote
+npm init -y
+npm install --save-dev electron</code>
+        
+        <p>Update your package.json to include start script and main entry point. This tells npm how to start your application and which file serves as the entry point.</p>
+        
+        <code>{
+  "name": "electronote",
+  "version": "1.0.0",
+  "description": "A simple Electron note-taking app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  }
+}</code>
+        
+        <p>Create the main.js file which will serve as your application's main process. This file manages the application lifecycle and creates windows.</p>
+        
+        <code>const { app, BrowserWindow } = require('electron')
+const path = require('path')
+
+let mainWindow
+
+function createWindow() {
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  mainWindow.loadFile('index.html')
+}
+
+app.whenReady().then(() => {
+  createWindow()
+})</code>
+        
+        <p>This completes the basic setup for building a simple ElectroNote application with Electron! You can expand this foundation to add more features like file operations, menus, and advanced UI components.</p>
+      </section>
+
+      <section class="main-section" id="Packaging_and_Distribution">
+        <header>Packaging and Distribution</header>
+        
+        <p>Once you've built your Electron app, you'll want to share it with others. Packaging turns your code into installable software that users can easily run on their computers.</p>
+        
+        <p>Packaging is the process of bundling your Electron app into an installer or executable file that users can download and run. A packaged app includes your application code, the Electron runtime, and any dependencies your app needs.</p>
+        
+        <p>electron-builder is a tool that makes packaging Electron apps easy. Install it as a development dependency in your project.</p>
+        
+        <code>npm install --save-dev electron-builder</code>
+        
+        <p>Add a build script to your package.json file. This script will be used to create the packaged version of your application.</p>
+        
+        <code>"scripts": {
+  "start": "electron .",
+  "build": "electron-builder"
+}</code>
+        
+        <p>Add these essential settings to your package.json file to configure how your app should be packaged and what metadata should be included.</p>
+        
+        <code>{
+  "name": "electronote",
+  "version": "1.0.0",
+  "description": "A simple note-taking app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.example.electronote",
+    "productName": "ElectroNote",
+    "files": ["**/*"],
+    "directories": {
+      "output": "dist"
+    }
+  }
+}</code>
+        
+        <p>Run the build command to create installers for your current platform. The build process will create distributable files in the dist directory.</p>
+        
+        <p>You can build for specific platforms using command-line flags. For Windows, use --win; for macOS, use --mac; and for Linux, use --linux.</p>
+        
+        <p>For Windows, you'll get an installer (.exe) that users can run to install your app. For macOS, you'll get a disk image (.dmg) that users can drag to their Applications folder. For Linux, you'll typically get an AppImage that runs on most Linux distributions.</p>
+      </section>
+
+      <section class="main-section" id="Best_Practices_and_Security">
+        <header>Best Practices and Security</header>
+        
+        <p>This guide covers essential practices for building secure, efficient, and maintainable Electron applications. Following these recommendations will help you avoid common pitfalls and create better apps.</p>
+        
+        <p>Security is crucial for Electron apps since they have access to both web and native capabilities. Context isolation separates your preload script from the renderer's JavaScript context, preventing prototype pollution attacks.</p>
+        
+        <p>Always use context isolation by setting contextIsolation to true in your BrowserWindow webPreferences. This is a critical security measure that should never be disabled in production apps.</p>
+        
+        <code>const win = new BrowserWindow({
+  webPreferences: {
+    contextIsolation: true,
+    preload: path.join(__dirname, 'preload.js')
+  }
+})</code>
+        
+        <p>Prevent renderers from directly accessing Node.js APIs to reduce security risks. Set nodeIntegration to false in your webPreferences configuration.</p>
+        
+        <p>Always validate data received from renderers in the main process. Never trust data from the renderer without proper validation and sanitization.</p>
+        
+        <code>// main.js
+ipcMain.handle('save-data', async (event, data) => {
+  // Validate data before using it
+  if (typeof data !== 'string' || data.length > 1000) {
+    throw new Error('Invalid data')
+  }
+  
+  // Now safe to use
+  await fs.writeFile('path/to/file.txt', data)
+  return { success: true }
+})</code>
+        
+        <p>Electron apps can consume significant memory if not properly optimized. Always remove event listeners when they're no longer needed, release object references by setting them to null, and avoid global variables that persist throughout the application lifecycle.</p>
+        
+        <p>Use a proper Content Security Policy to prevent XSS attacks. Only expose necessary APIs through contextBridge and validate all data from renderer processes.</p>
+        
+        <p>Keep Electron and dependencies up to date, use HTTPS for all network requests, and implement proper permission handling for sensitive operations.</p>
       </section>
     </main>
   </div>

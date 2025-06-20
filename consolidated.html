@@ -1,0 +1,1807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Electron App Development Documentation</title>
+  <style>
+    /* Reset and Global Styles */
+    html {
+      scroll-behavior: smooth;
+      box-sizing: border-box;
+    }
+
+    *, *:before, *:after {
+      box-sizing: inherit;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      line-height: 1.6;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    /* Layout Structure */
+    .container {
+      display: flex;
+    }
+
+    /* Navigation Sidebar */
+    #navbar { 
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 250px;
+      height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      gap: 15px;
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    #navbar header {
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+      color: white;
+      margin-bottom: 10px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .nav-link {
+      display: block;
+      padding: 12px 15px;
+      margin: 5px 0;
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      text-decoration: none;
+      text-align: center;
+      border-radius: 5px;
+      transition: all 0.3s ease;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
+
+    /* Main Content Area */
+    #main-doc {
+      margin-left: 250px;
+      padding: 30px 40px;
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    .main-section {
+      margin-bottom: 40px;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      padding: 25px;
+    }
+
+    .main-section > header {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #ecf0f1;
+    }
+
+    /* Typography & Content Styling */
+    h3 {
+      font-size: 22px;
+      color: #3498db;
+      margin-top: 30px;
+      margin-bottom: 15px;
+    }
+
+    h4 {
+      font-size: 18px;
+      color: #2c3e50;
+      margin-top: 25px;
+      margin-bottom: 10px;
+    }
+
+    h5 {
+      font-size: 16px;
+      color: #2c3e50;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+
+    p {
+      margin: 15px 0;
+      line-height: 1.7;
+      font-size: 16px;
+      max-width: 800px;
+    }
+
+    ul, ol {
+      margin: 15px 0;
+      padding-left: 25px;
+    }
+
+    li {
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+
+    /* Code Blocks */
+    code {
+      display: block;
+      background-color: #f5f7f9;
+      color: #333;
+      font-family: 'Consolas', 'Monaco', monospace;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 5px;
+      border-left: 4px solid #3498db;
+      overflow-x: auto;
+      font-size: 14px;
+      line-height: 1.5;
+      white-space: pre;
+    }
+
+    /* Special Sections */
+    #Setup {
+      background-color: #e0f7fa;
+    }
+
+    /* Tutorial specific styles */
+    .toc-container {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      border-left: 4px solid #3498db;
+    }
+    .toc-title {
+      margin-top: 0;
+      color: #2c3e50;
+      font-size: 18px;
+    }
+    .toc-list {
+      list-style-type: none;
+      padding-left: 15px;
+    }
+    .toc-list li {
+      margin-bottom: 8px;
+    }
+    .toc-list a {
+      text-decoration: none;
+      color: #3498db;
+    }
+    .toc-list a:hover {
+      text-decoration: underline;
+    }
+    .step-number {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      background-color: #3498db;
+      color: white;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 24px;
+      margin-right: 8px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+    .section-divider {
+      border-top: 1px solid #e0e0e0;
+      margin: 30px 0;
+    }
+
+    /* Process diagram styles */
+    .process-diagram {
+      margin: 30px 0;
+      text-align: center;
+    }
+    .diagram-container {
+      display: inline-flex;
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .process-box {
+      width: 200px;
+      padding: 15px;
+      margin: 10px;
+      border-radius: 6px;
+      text-align: center;
+    }
+    .main-process {
+      background-color: #3498db;
+      color: white;
+    }
+    .renderer-process {
+      background-color: #2ecc71;
+      color: white;
+    }
+    .ipc-arrow {
+      display: flex;
+      align-items: center;
+      color: #7f8c8d;
+      font-weight: bold;
+      padding: 0 15px;
+    }
+
+    /* Best practices styles */
+    .do-dont {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .do, .dont {
+      flex: 1;
+      padding: 15px;
+      border-radius: 8px;
+    }
+    .do {
+      background-color: #e8f5e9;
+      border-left: 4px solid #2ecc71;
+    }
+    .dont {
+      background-color: #ffebee;
+      border-left: 4px solid #e74c3c;
+    }
+    .do h5, .dont h5 {
+      margin-top: 0;
+      margin-bottom: 10px;
+    }
+
+    /* Media Queries */
+    @media (max-width: 900px) {
+      #main-doc {
+        margin-left: 250px;
+        padding: 20px;
+      }
+      
+      p, ul, ol {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      
+      #navbar {
+        position: relative;
+        width: 100%;
+        height: auto;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      
+      #main-doc {
+        margin-left: 0;
+        padding: 15px;
+      }
+      
+      .nav-link {
+        text-align: left;
+      }
+      
+      .main-section {
+        padding: 15px;
+      }
+
+      .do-dont {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <nav id="navbar">
+      <header>Electron Documentation</header>
+      <a class="nav-link" href="#Introduction">Introduction to Electron</a>
+      <a class="nav-link" href="#Setup">Setup & Installation</a>
+      <a class="nav-link" href="#MainVsRenderer">Main vs Renderer Process</a>
+      <a class="nav-link" href="#FirstApp">Building Your First App</a>
+      <a class="nav-link" href="#Packaging">Packaging & Distribution</a>
+      <a class="nav-link" href="#BestPractices">Best Practices & Security</a>
+    </nav>
+    
+    <main id="main-doc">
+      <section class="main-section" id="Introduction">
+        <header>Introduction to Electron</header>
+        
+        <h3>What is Electron?</h3>
+        <p>Electron is an open-source framework that allows you to build desktop applications using web technologies like JavaScript, HTML, and CSS. Created by GitHub, it combines the Chromium rendering engine (which powers Google Chrome) with Node.js to let you build cross-platform desktop apps.</p>
+        
+        <p>In simple terms, Electron lets you take your web development skills and use them to create desktop software that runs on Windows, macOS, and Linux.</p>
+        
+        <h3>Why Use Electron?</h3>
+        <p>There are several reasons to choose Electron for building desktop applications:</p>
+        <ul>
+          <li><strong>Familiar technology</strong> - If you know how to build websites, you already know most of what you need for Electron</li>
+          <li><strong>Cross-platform</strong> - Write once, run on Windows, macOS, and Linux</li>
+          <li><strong>Rich ecosystem</strong> - Access to both npm packages and browser APIs</li>
+          <li><strong>Fast development</strong> - Rapid prototyping and development compared to native apps</li>
+          <li><strong>Modern UI</strong> - Create sleek, modern interfaces using CSS</li>
+        </ul>
+        
+        <h3>Key Features</h3>
+        <ul>
+          <li><strong>Native APIs</strong> - Access file system, notifications, menus, and other desktop features</li>
+          <li><strong>Auto-updates</strong> - Built-in mechanisms to keep your apps up to date</li>
+          <li><strong>Debugging</strong> - Use Chromium DevTools for easy debugging</li>
+          <li><strong>Packaging</strong> - Simple ways to package and distribute your app</li>
+          <li><strong>Crash reporting</strong> - Tools to track and fix issues</li>
+        </ul>
+        
+        <h3>Basic Architecture</h3>
+        <p>Electron apps have a simple but powerful architecture based on two types of processes:</p>
+        
+        <h4>Main Process</h4>
+        <p>The main process is the entry point of your application. It has access to operating system APIs and controls the application lifecycle. Think of it as the "backend" of your Electron app.</p>
+        
+        <h4>Renderer Process</h4>
+        <p>The renderer process handles the user interface. Each window in your app runs in a separate renderer process, similar to how browser tabs work. This is where your HTML, CSS, and frontend JavaScript runs.</p>
+        
+        <p>These processes communicate with each other using a system called Inter-Process Communication (IPC). We'll cover this in more detail in the Main vs. Renderer Process section.</p>
+        
+        <h3>Popular Apps Built with Electron</h3>
+        <p>You probably already use several Electron apps without realizing it:</p>
+        <ul>
+          <li><strong>Visual Studio Code</strong> - Microsoft's popular code editor</li>
+          <li><strong>Slack</strong> - Team communication platform</li>
+          <li><strong>Discord</strong> - Voice, video, and text chat app</li>
+          <li><strong>WhatsApp Desktop</strong> - Desktop version of the messaging app</li>
+          <li><strong>Twitch</strong> - Streaming platform's desktop app</li>
+          <li><strong>GitHub Desktop</strong> - Git management tool</li>
+        </ul>
+        
+        <h3>Getting Started</h3>
+        <p>Ready to build your first Electron app? The next sections will guide you through:</p>
+        <ol>
+          <li>Setting up your development environment</li>
+          <li>Understanding the main and renderer processes</li>
+          <li>Building a simple note-taking app</li>
+          <li>Packaging your app for distribution</li>
+        </ol>
+        
+        <p>Let's start with <a href="#Setup">Setup & Installation</a> to get your environment ready.</p>
+      </section>
+
+      <section class="main-section" id="Setup">
+        <header>Setup & Installation</header>
+        
+        <p>This section will help you set up everything you need to start developing Electron applications. The process is straightforward and requires just a few tools.</p>
+        
+        <h3>Prerequisites</h3>
+        <p>Before you begin, make sure you have the following installed:</p>
+        <ul>
+          <li><strong>Node.js & npm</strong> - Electron requires Node.js version 14.0.0 or higher</li>
+          <li><strong>Code editor</strong> - We recommend Visual Studio Code, but any editor works</li>
+          <li><strong>Git</strong> - Optional but useful for version control</li>
+        </ul>
+        
+        <h4>Installing Node.js</h4>
+        <p>Download and install Node.js from <a href="https://nodejs.org/" target="_blank">nodejs.org</a>. The LTS (Long Term Support) version is recommended.</p>
+        
+        <p>After installation, verify it's working by opening a terminal or command prompt and typing:</p>
+        <code>node --version
+npm --version</code>
+        
+        <p>Both commands should display version numbers, confirming successful installation.</p>
+        
+        <h3>Creating Your First Electron Project</h3>
+        <p>Follow these steps to create a basic Electron application:</p>
+        
+        <h4>Step 1: Create a Project Folder</h4>
+        <p>Open your terminal and run these commands:</p>
+        <code># Create a new folder
+mkdir my-electron-app
+cd my-electron-app</code>
+        
+        <h4>Step 2: Initialize Your Project</h4>
+        <p>Create a new npm project:</p>
+        <code>npm init -y</code>
+        
+        <p>This creates a package.json file with default values.</p>
+        
+        <h4>Step 3: Install Electron</h4>
+        <p>Add Electron as a development dependency:</p>
+        <code>npm install --save-dev electron</code>
+        
+        <h4>Step 4: Update package.json</h4>
+        <p>Open the package.json file and add a start script:</p>
+        <code>{
+  "name": "my-electron-app",
+  "version": "1.0.0",
+  "description": "My first Electron app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "electron": "^latest-version"
+  }
+}</code>
+        
+        <h4>Step 5: Create Basic Files</h4>
+        <p>Create the following files in your project folder:</p>
+        
+        <p>main.js (the entry point for your app):</p>
+        <code>const { app, BrowserWindow } = require('electron')
+const path = require('path')
+
+// Create the browser window
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  })
+
+  // Load the HTML file
+  win.loadFile('index.html')
+}
+
+// When Electron is ready, create the window
+app.whenReady().then(() => {
+  createWindow()
+
+  // On macOS, re-create a window when dock icon is clicked
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+
+// Quit the app when all windows are closed (except on macOS)
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})</code>
+        
+        <p>index.html (the user interface):</p>
+        <code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Hello Electron!&lt;/title&gt;
+  &lt;meta http-equiv="Content-Security-Policy" content="script-src 'self';"&gt;
+  &lt;style&gt;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #2c3e50;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="container"&gt;
+    &lt;h1&gt;Hello Electron!&lt;/h1&gt;
+    &lt;p&gt;Welcome to your first Electron app.&lt;/p&gt;
+    &lt;p&gt;If you can see this, congratulations - you've successfully set up Electron!&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+        
+        <h4>Step 6: Run Your App</h4>
+        <p>Start your Electron app with:</p>
+        <code>npm start</code>
+        
+        <p>If everything is set up correctly, you should see a window with "Hello Electron!" displayed.</p>
+        
+        <h3>Project Structure</h3>
+        <p>At this point, your project should have this basic structure:</p>
+        <code>my-electron-app/
+├── node_modules/
+├── index.html
+├── main.js
+├── package.json
+└── package-lock.json</code>
+        
+        <h3>Troubleshooting Common Issues</h3>
+        
+        <h4>Issue: "electron: command not found"</h4>
+        <p><strong>Solution:</strong> This usually means Electron isn't installed correctly. Try these steps:</p>
+        <ul>
+          <li>Ensure you ran npm install in the right directory</li>
+          <li>Try installing Electron globally: <code>npm install -g electron</code></li>
+          <li>Use npx to run it: <code>npx electron .</code></li>
+        </ul>
+        
+        <h4>Issue: Blank/white screen</h4>
+        <p><strong>Solution:</strong> Check for these common causes:</p>
+        <ul>
+          <li>Make sure the path to index.html is correct in main.js</li>
+          <li>Check for JavaScript errors in the DevTools (press Ctrl+Shift+I or Cmd+Option+I)</li>
+          <li>Verify that all required files exist</li>
+        </ul>
+        
+        <h4>Issue: Security warnings</h4>
+        <p><strong>Solution:</strong> Modern Electron apps should use secure settings:</p>
+        <ul>
+          <li>Set nodeIntegration: false</li>
+          <li>Set contextIsolation: true</li>
+          <li>Add a Content Security Policy in your HTML</li>
+        </ul>
+        
+        <h3>Next Steps</h3>
+        <p>Now that you have a basic Electron app running, you're ready to learn more about how Electron works.</p>
+        
+        <p>Check out the <a href="#MainVsRenderer">Main vs Renderer Process</a> section to understand Electron's architecture, or jump to <a href="#FirstApp">Building Your First App</a> to create something more useful.</p>
+      </section>
+
+      <section class="main-section" id="MainVsRenderer">
+        <header>Main vs Renderer Process</header>
+        
+        <p>One of Electron's most important concepts is its two-process architecture. Understanding how these processes work and communicate is key to building effective Electron apps.</p>
+        
+        <h3>The Two-Process Model</h3>
+        
+        <div class="process-diagram">
+          <div class="diagram-container">
+            <div class="process-box main-process">
+              <h4>Main Process</h4>
+              <p>Controls app lifecycle<br>Access to OS APIs<br>Single instance</p>
+            </div>
+            <div class="ipc-arrow">
+              IPC ↔
+            </div>
+            <div class="process-box renderer-process">
+              <h4>Renderer Process</h4>
+              <p>Controls UI<br>Runs web content<br>Multiple instances</p>
+            </div>
+          </div>
+        </div>
+        
+        <h3>The Main Process</h3>
+        <p>The main process is the entry point to your Electron application - the file specified in your package.json's "main" field (usually main.js).</p>
+        
+        <h4>What the Main Process Does:</h4>
+        <ul>
+          <li>Creates and manages application windows (BrowserWindow instances)</li>
+          <li>Controls application lifecycle (start, quit, etc.)</li>
+          <li>Accesses native operating system APIs (menus, dialogs, etc.)</li>
+          <li>Handles system-level operations (file access, network requests)</li>
+          <li>Coordinates communication between renderer processes</li>
+        </ul>
+        
+        <p>The main process is like the "back-end" of your Electron app. It runs as a Node.js process and has full access to the Node.js APIs.</p>
+        
+        <h4>Sample Main Process Code:</h4>
+        <code>// main.js - The Main Process
+const { app, BrowserWindow } = require('electron')
+
+// Create a window when the app is ready
+app.whenReady().then(() => {
+  // Create a new browser window
+  const mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      // Security settings
+      nodeIntegration: false,
+      contextIsolation: true
+    }
+  })
+  
+  // Load HTML file into the window
+  mainWindow.loadFile('index.html')
+})</code>
+        
+        <h3>The Renderer Process</h3>
+        <p>Every window in an Electron app runs in its own separate renderer process. These processes display the user interface and run the web content (HTML, CSS, and JavaScript).</p>
+        
+        <h4>What Renderer Processes Do:</h4>
+        <ul>
+          <li>Display web content (HTML, CSS, JavaScript)</li>
+          <li>Handle user interactions and UI events</li>
+          <li>Render visual elements and animations</li>
+          <li>Process user input</li>
+          <li>Execute frontend logic</li>
+        </ul>
+        
+        <p>Renderer processes are like browser tabs - each one is isolated and runs independently. They're based on Chromium and behave much like a web page.</p>
+        
+        <h4>Sample Renderer Content:</h4>
+        <code><!-- index.html - Displayed in a Renderer Process -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Electron App</title>
+</head>
+<body>
+  <h1>Hello from the Renderer Process!</h1>
+  <button id="sendMessage">Send Message to Main</button>
+  
+  <script src="renderer.js"></script>
+</body>
+</html></code>
+        
+        <h3>Communication Between Processes (IPC)</h3>
+        <p>The main and renderer processes can't directly access each other's variables or functions. Instead, they communicate using Inter-Process Communication (IPC).</p>
+        
+        <div class="process-diagram">
+          <div class="diagram-container" style="flex-direction: column; align-items: center;">
+            <div class="process-box main-process" style="width: 300px;">
+              Main Process
+            </div>
+            <div style="height: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+              <div>↑ ipcMain.on('channel', handler)</div>
+              <div>↓ webContents.send('channel', data)</div>
+            </div>
+            <div class="process-box renderer-process" style="width: 300px;">
+              Renderer Process
+            </div>
+            <div style="height: 40px; display: flex; flex-direction: column; justify-content: space-between; align-items: center;">
+              <div>↑ ipcRenderer.send('channel', data)</div>
+              <div>↓ ipcRenderer.on('channel', handler)</div>
+            </div>
+          </div>
+        </div>
+        
+        <h4>Setting Up IPC Communication:</h4>
+        <p>Modern Electron apps use a preload script with contextBridge for secure IPC communication:</p>
+        
+        <h5>1. Create a Preload Script</h5>
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+// Expose IPC functions to the renderer process
+contextBridge.exposeInMainWorld('electronAPI', {
+  // Send a message to the main process
+  sendMessage: (message) => ipcRenderer.send('message', message),
+  
+  // Receive messages from the main process
+  onReceiveMessage: (callback) => ipcRenderer.on('reply', (event, data) => callback(data))
+})</code>
+        
+        <h5>2. Configure the Main Process to Use the Preload Script</h5>
+        <code>// In your main.js file
+const mainWindow = new BrowserWindow({
+  webPreferences: {
+    preload: path.join(__dirname, 'preload.js'),
+    contextIsolation: true,
+    nodeIntegration: false
+  }
+})</code>
+        
+        <h5>3. Set Up IPC Handlers in the Main Process</h5>
+        <code>// In your main.js file
+const { ipcMain } = require('electron')
+
+// Listen for messages from renderer
+ipcMain.on('message', (event, message) => {
+  console.log('Received from renderer:', message)
+  
+  // Reply back to the renderer
+  event.sender.send('reply', 'Message received!')
+})</code>
+        
+        <h5>4. Use the API in the Renderer Process</h5>
+        <code>// In your renderer.js file
+document.getElementById('sendMessage').addEventListener('click', () => {
+  // Send a message to the main process
+  window.electronAPI.sendMessage('Hello from renderer!')
+})
+
+// Handle replies from the main process
+window.electronAPI.onReceiveMessage((data) => {
+  console.log('Main process says:', data)
+})</code>
+        
+        <h3>Practical Use Cases</h3>
+        
+        <h4>Use Case 1: Save a File</h4>
+        <p>The renderer process needs the main process to save data to a file:</p>
+        
+        <h5>Preload Script:</h5>
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  saveFile: (content) => ipcRenderer.invoke('save-file', content),
+})</code>
+        
+        <h5>Main Process:</h5>
+        <code>// main.js
+const { ipcMain, dialog } = require('electron')
+const fs = require('fs')
+
+ipcMain.handle('save-file', async (event, content) => {
+  const { filePath } = await dialog.showSaveDialog({
+    buttonLabel: 'Save',
+    defaultPath: 'file.txt'
+  })
+  
+  if (!filePath) return 'cancelled'
+  
+  // Write file (only possible in main process)
+  fs.writeFileSync(filePath, content)
+  return 'saved'
+})</code>
+        
+        <h5>Renderer Process:</h5>
+        <code>// renderer.js
+document.getElementById('saveButton').addEventListener('click', async () => {
+  const content = document.getElementById('editor').value
+  const result = await window.electronAPI.saveFile(content)
+  
+  if (result === 'saved') {
+    alert('File saved successfully!')
+  }
+})</code>
+        
+        <h4>Use Case 2: App Notifications</h4>
+        <p>The main process sends notifications to all renderer processes:</p>
+        
+        <h5>Preload Script:</h5>
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  onNotification: (callback) => 
+    ipcRenderer.on('notification', (event, message) => callback(message))
+})</code>
+        
+        <h5>Main Process:</h5>
+        <code>// main.js
+function sendNotificationToAll(message) {
+  // Send to all windows
+  BrowserWindow.getAllWindows().forEach(window => {
+    window.webContents.send('notification', message)
+  })
+}
+
+// Example: Send a notification after 5 seconds
+setTimeout(() => {
+  sendNotificationToAll('This is a notification from the main process')
+}, 5000)</code>
+        
+        <h5>Renderer Process:</h5>
+        <code>// renderer.js
+window.electronAPI.onNotification((message) => {
+  // Show notification in the UI
+  const element = document.getElementById('notifications')
+  const notification = document.createElement('div')
+  notification.textContent = message
+  element.appendChild(notification)
+})</code>
+        
+        <h3>Common Troubleshooting</h3>
+        
+        <h4>Issue: IPC Not Working</h4>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Check that the preload script path is correct</li>
+          <li>Ensure contextIsolation is enabled</li>
+          <li>Verify channel names match exactly in main and renderer processes</li>
+          <li>Check console for errors (main process logs and DevTools)</li>
+        </ul>
+        
+        <h4>Issue: "Object has been destroyed" Error</h4>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Ensure you're not trying to communicate with a destroyed window</li>
+          <li>Use event.sender.isDestroyed() check before sending replies</li>
+          <li>Store window references carefully in the main process</li>
+        </ul>
+        
+        <h4>Issue: Security Warnings</h4>
+        <p><strong>Solution:</strong></p>
+        <ul>
+          <li>Always use contextIsolation: true</li>
+          <li>Keep nodeIntegration: false</li>
+          <li>Expose only the minimum functionality needed through contextBridge</li>
+          <li>Validate all data received from renderer processes</li>
+        </ul>
+        
+        <h3>Best Practices</h3>
+        <ul>
+          <li><strong>Keep it simple</strong> - Use clear channel names that describe what they do</li>
+          <li><strong>Use invoke/handle</strong> - For request/response patterns, use ipcRenderer.invoke and ipcMain.handle</li>
+          <li><strong>Validate all data</strong> - Never trust data from the renderer without validation</li>
+          <li><strong>Expose only what's needed</strong> - Limit what's available through the contextBridge</li>
+          <li><strong>Organize channels</strong> - Group related functionality into logical API sections</li>
+        </ul>
+        
+        <p>Now that you understand how the main and renderer processes work together, you're ready to build more complex Electron applications. Check out <a href="#FirstApp">Building Your First App</a> to put these concepts into practice.</p>
+      </section>
+
+      <section class="main-section" id="FirstApp">
+        <header>Building Your First Electron App</header>
+        <p>In this tutorial, we'll build a simple note-taking application called "ElectroNote" to demonstrate the core concepts of Electron development. This practical example will cover setting up a project structure, creating windows, building a UI, implementing file operations, and adding menu items.</p>
+        
+        <div class="toc-container">
+          <h4 class="toc-title">Tutorial Contents</h4>
+          <ul class="toc-list">
+            <li><a href="#overview">Project Overview</a></li>
+            <li><a href="#step1">Step 1: Project Setup</a></li>
+            <li><a href="#step2">Step 2: Creating the Main Window</a></li>
+            <li><a href="#step3">Step 3: Building the User Interface</a></li>
+            <li><a href="#step4">Step 4: Styling the UI</a></li>
+            <li><a href="#step5">Step 5: Creating the Preload Script</a></li>
+            <li><a href="#step6">Step 6: Implementing the Renderer</a></li>
+            <li><a href="#step7">Step 7: Implementing File Operations</a></li>
+            <li><a href="#step8">Step 8: Creating the Application Menu</a></li>
+            <li><a href="#step9">Step 9: Running and Testing</a></li>
+            <li><a href="#troubleshooting">Troubleshooting Common Issues</a></li>
+            <li><a href="#nextsteps">Next Steps and Enhancements</a></li>
+          </ul>
+        </div>
+        
+        <h3 id="overview">Project Overview</h3>
+        <p>Our note-taking app will have the following features:</p>
+        <ul>
+          <li>Create, edit, save, and load text notes</li>
+          <li>Autosave notes to the filesystem</li>
+          <li>Custom application menu</li>
+          <li>Simple, clean user interface</li>
+        </ul>
+
+        <div class="section-divider"></div>
+        
+        <h3 id="step1"><span class="step-number">1</span> Project Setup</h3>
+        <p>Let's start by creating a new project structure:</p>
+        <code>mkdir ElectroNote
+cd ElectroNote
+npm init -y
+npm install --save-dev electron</code>
+        
+        <p>Update your package.json to include start script and main entry point:</p>
+        <code>{
+  "name": "electronote",
+  "version": "1.0.0",
+  "description": "A simple Electron note-taking app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  }
+}</code>
+        
+        <p>Create the following file structure:</p>
+        <code>ElectroNote/
+├── package.json
+├── main.js           // Main process
+├── preload.js        // Preload script
+├── renderer.js       // Renderer process script
+├── index.html        // Main UI
+└── styles.css        // Styling</code>
+        
+        <div class="section-divider"></div>
+        
+        <h3 id="step2"><span class="step-number">2</span> Creating the Main Window (main.js)</h3>
+        <p>Create the main.js file with the following code:</p>
+        <code>const { app, BrowserWindow } = require('electron')
+const path = require('path')
+
+let mainWindow
+
+function createWindow() {
+  // Create the browser window
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  // Load the index.html file
+  mainWindow.loadFile('index.html')
+}
+
+// Create window when app is ready
+app.whenReady().then(() => {
+  createWindow()
+  
+  app.on('activate', () => {
+    if (BrowserWindow.getAllWindows().length === 0) {
+      createWindow()
+    }
+  })
+})
+
+// Quit when all windows are closed (Windows & Linux)
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})</code>
+        
+        <h3>3. Building the User Interface (index.html)</h3>
+        <p>Create the index.html file for our note-taking interface:</p>
+        <code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;ElectroNote&lt;/title&gt;
+  &lt;meta http-equiv="Content-Security-Policy" content="script-src 'self';"&gt;
+  &lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;div class="app-container"&gt;
+    &lt;header class="toolbar"&gt;
+      &lt;h1&gt;ElectroNote&lt;/h1&gt;
+      &lt;div class="file-info"&gt;
+        &lt;span id="current-file"&gt;Untitled&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/header&gt;
+    
+    &lt;main class="editor-container"&gt;
+      &lt;textarea id="editor" placeholder="Start typing your note..."&gt;&lt;/textarea&gt;
+    &lt;/main&gt;
+    
+    &lt;footer class="status-bar"&gt;
+      &lt;span id="status"&gt;Ready&lt;/span&gt;
+    &lt;/footer&gt;
+  &lt;/div&gt;
+  
+  &lt;script src="renderer.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code>
+        
+        <h3>4. Styling the UI (styles.css)</h3>
+        <p>Create styles.css to make our app look polished:</p>
+        <code>body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: #f5f5f5;
+  overflow: hidden;
+}
+
+.app-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.toolbar {
+  background-color: #2c3e50;
+  color: white;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.toolbar h1 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.file-info {
+  font-size: 14px;
+  opacity: 0.8;
+}
+
+.editor-container {
+  flex: 1;
+  padding: 20px;
+}
+
+#editor {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 20px;
+  background-color: white;
+  border-radius: 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.status-bar {
+  background-color: #34495e;
+  color: white;
+  padding: 5px 20px;
+  font-size: 12px;
+}</code>
+        
+        <h3>5. Creating the Preload Script (preload.js)</h3>
+        <p>The preload.js file will set up secure IPC for communication between renderer and main processes:</p>
+        <code>const { contextBridge, ipcRenderer } = require('electron')
+
+// Expose protected methods that allow the renderer process to use
+// specific electron APIs without exposing the entire API
+contextBridge.exposeInMainWorld('electronAPI', {
+  // Note operations
+  saveNote: (content) => ipcRenderer.send('save-note', content),
+  saveNoteAs: (content) => ipcRenderer.send('save-note-as', content),
+  openNote: () => ipcRenderer.send('open-note'),
+  newNote: () => ipcRenderer.send('new-note'),
+  
+  // Listeners
+  onNoteLoaded: (callback) => ipcRenderer.on('note-loaded', (event, data) => callback(data)),
+  onNoteSaved: (callback) => ipcRenderer.on('note-saved', (event, filepath) => callback(filepath)),
+  onError: (callback) => ipcRenderer.on('error', (event, message) => callback(message)),
+  onStatusUpdate: (callback) => ipcRenderer.on('status-update', (event, message) => callback(message))
+})</code>
+        
+        <h3>6. Implementing the Renderer Script (renderer.js)</h3>
+        <p>Create renderer.js to handle the UI interactions:</p>
+        <code>document.addEventListener('DOMContentLoaded', () => {
+  const editor = document.getElementById('editor')
+  const currentFileElement = document.getElementById('current-file')
+  const statusElement = document.getElementById('status')
+  
+  let contentChanged = false
+  
+  // Auto-save functionality (every 30 seconds)
+  setInterval(() => {
+    if (contentChanged) {
+      window.electronAPI.saveNote(editor.value)
+      contentChanged = false
+    }
+  }, 30000)
+  
+  // Track changes to enable auto-save
+  editor.addEventListener('input', () => {
+    contentChanged = true
+    updateStatus('Editing...')
+  })
+  
+  // Handle Ctrl+S shortcut
+  document.addEventListener('keydown', (e) => {
+    if (e.ctrlKey && e.key === 's') {
+      e.preventDefault()
+      window.electronAPI.saveNote(editor.value)
+    }
+  })
+  
+  // Listen for note loaded events
+  window.electronAPI.onNoteLoaded((data) => {
+    editor.value = data.content
+    currentFileElement.textContent = data.filepath || 'Untitled'
+    updateStatus('Note loaded')
+  })
+  
+  // Listen for note saved events
+  window.electronAPI.onNoteSaved((filepath) => {
+    currentFileElement.textContent = filepath || 'Untitled'
+    updateStatus('Note saved')
+    contentChanged = false
+  })
+  
+  // Listen for error events
+  window.electronAPI.onError((message) => {
+    updateStatus(`Error: ${message}`)
+  })
+  
+  // Listen for status updates
+  window.electronAPI.onStatusUpdate((message) => {
+    updateStatus(message)
+  })
+  
+  // Helper function to update status
+  function updateStatus(message) {
+    statusElement.textContent = message
+  }
+})</code>
+        
+        <h3>7. Implementing File Operations (back in main.js)</h3>
+        <p>Now, let's add the file operations to main.js. Add these imports and variables at the top:</p>
+        <code>const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron')
+const path = require('path')
+const fs = require('fs')
+
+let mainWindow
+let currentFilePath = null</code>
+        
+        <p>Add these functions after the existing code:</p>
+        <code>// Handle saving notes
+function saveNote(content) {
+  if (currentFilePath) {
+    // Save to existing file
+    fs.writeFileSync(currentFilePath, content)
+    mainWindow.webContents.send('note-saved', currentFilePath)
+  } else {
+    // If no file exists yet, prompt for save location
+    saveNoteAs(content)
+  }
+}
+
+// Handle "Save As" operation
+function saveNoteAs(content) {
+  dialog.showSaveDialog(mainWindow, {
+    title: 'Save Note',
+    defaultPath: app.getPath('documents'),
+    filters: [
+      { name: 'Text Files', extensions: ['txt'] },
+      { name: 'All Files', extensions: ['*'] }
+    ]
+  }).then(result => {
+    if (!result.canceled && result.filePath) {
+      fs.writeFileSync(result.filePath, content)
+      currentFilePath = result.filePath
+      mainWindow.webContents.send('note-saved', result.filePath)
+    }
+  }).catch(err => {
+    mainWindow.webContents.send('error', 'Failed to save file')
+    console.error(err)
+  })
+}
+
+// Handle opening notes
+function openNote() {
+  dialog.showOpenDialog(mainWindow, {
+    title: 'Open Note',
+    defaultPath: app.getPath('documents'),
+    filters: [
+      { name: 'Text Files', extensions: ['txt'] },
+      { name: 'All Files', extensions: ['*'] }
+    ],
+    properties: ['openFile']
+  }).then(result => {
+    if (!result.canceled && result.filePaths.length > 0) {
+      const filepath = result.filePaths[0]
+      const content = fs.readFileSync(filepath, 'utf8')
+      currentFilePath = filepath
+      mainWindow.webContents.send('note-loaded', { 
+        filepath: filepath, 
+        content: content 
+      })
+    }
+  }).catch(err => {
+    mainWindow.webContents.send('error', 'Failed to open file')
+    console.error(err)
+  })
+}
+
+// Handle creating a new note
+function newNote() {
+  currentFilePath = null
+  mainWindow.webContents.send('note-loaded', { 
+    filepath: null, 
+    content: '' 
+  })
+}</code>
+        
+        <p>Add these IPC handlers inside the app.whenReady().then() block:</p>
+        <code>  // Set up IPC handlers for note operations
+  ipcMain.on('save-note', (event, content) => {
+    saveNote(content)
+  })
+  
+  ipcMain.on('save-note-as', (event, content) => {
+    saveNoteAs(content)
+  })
+  
+  ipcMain.on('open-note', () => {
+    openNote()
+  })
+  
+  ipcMain.on('new-note', () => {
+    newNote()
+  })</code>
+        
+        <h3>8. Creating the Application Menu</h3>
+        <p>Add this function to main.js to create a custom application menu:</p>
+        <code>function createMenu() {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        {
+          label: 'New Note',
+          accelerator: 'CmdOrCtrl+N',
+          click: () => { newNote() }
+        },
+        {
+          label: 'Open',
+          accelerator: 'CmdOrCtrl+O',
+          click: () => { openNote() }
+        },
+        {
+          label: 'Save',
+          accelerator: 'CmdOrCtrl+S',
+          click: () => { 
+            mainWindow.webContents.send('request-save-content')
+          }
+        },
+        {
+          label: 'Save As',
+          accelerator: 'CmdOrCtrl+Shift+S',
+          click: () => {
+            mainWindow.webContents.send('request-save-as-content')
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Exit',
+          accelerator: process.platform === 'darwin' ? 'Cmd+Q' : 'Alt+F4',
+          click: () => { app.quit() }
+        }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { role: 'undo' },
+        { role: 'redo' },
+        { type: 'separator' },
+        { role: 'cut' },
+        { role: 'copy' },
+        { role: 'paste' },
+        { role: 'delete' },
+        { type: 'separator' },
+        { role: 'selectAll' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'About ElectroNote',
+          click: () => {
+            dialog.showMessageBox(mainWindow, {
+              title: 'About ElectroNote',
+              message: 'ElectroNote v1.0.0\nA simple note-taking app built with Electron.',
+              buttons: ['OK']
+            })
+          }
+        }
+      ]
+    }
+  ]
+  
+  const menu = Menu.buildFromTemplate(template)
+  Menu.setApplicationMenu(menu)
+}</code>
+        
+        <p>Call createMenu() in your createWindow function:</p>
+        <code>function createWindow() {
+  // Create the browser window
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  })
+
+  // Load the index.html file
+  mainWindow.loadFile('index.html')
+  
+  // Create the application menu
+  createMenu()
+}</code>
+        
+        <h3>9. Running and Testing the Application</h3>
+        <p>Now that we've implemented all the required functionality, let's run our app:</p>
+        <code>npm start</code>
+        
+        <p>You should see a window with the ElectroNote interface. Try creating a note, saving it, and opening it again to test the functionality.</p>
+        
+        <h4>Testing Features</h4>
+        <p>Make sure to test the following functionality:</p>
+        <ul>
+          <li>Creating a new note with File → New Note or Ctrl+N</li>
+          <li>Opening an existing note with File → Open or Ctrl+O</li>
+          <li>Saving a note with File → Save or Ctrl+S</li>
+          <li>Saving to a different location with File → Save As</li>
+          <li>Auto-save functionality (wait 30 seconds after making changes)</li>
+          <li>Application menu functionality</li>
+          <li>UI responsiveness and styling</li>
+        </ul>
+        
+        <h3>10. Common Troubleshooting</h3>
+        <p>Here are some common issues you might encounter and how to fix them:</p>
+        
+        <h4>White Screen or Blank Window</h4>
+        <ul>
+          <li><strong>Cause:</strong> Incorrect path to HTML file or JavaScript errors</li>
+          <li><strong>Solution:</strong> 
+            <ul>
+              <li>Check the path in mainWindow.loadFile()</li>
+              <li>Open DevTools (View → Toggle Developer Tools) to see error messages</li>
+              <li>Verify all files are in the correct location</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h4>IPC Communication Not Working</h4>
+        <ul>
+          <li><strong>Cause:</strong> Preload script not properly configured or IPC channels mismatched</li>
+          <li><strong>Solution:</strong> 
+            <ul>
+              <li>Verify that preload.js path is correct in the BrowserWindow options</li>
+              <li>Check that IPC channel names match between sender and receiver</li>
+              <li>Ensure contextIsolation is properly configured</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h4>File Operations Failing</h4>
+        <ul>
+          <li><strong>Cause:</strong> File permission issues or incorrect paths</li>
+          <li><strong>Solution:</strong> 
+            <ul>
+              <li>Check file permissions</li>
+              <li>Use absolute paths where possible</li>
+              <li>Add error handling with try/catch blocks around file operations</li>
+            </ul>
+          </li>
+        </ul>
+        
+        <h3>11. Next Steps and Enhancements</h3>
+        <p>Here are some ways you could enhance ElectroNote:</p>
+        
+        <h4>Feature Improvements</h4>
+        <ul>
+          <li><strong>Rich Text Editing:</strong> Replace the plain textarea with a rich text editor like TinyMCE or Quill</li>
+          <li><strong>Markdown Support:</strong> Add markdown parsing and preview</li>
+          <li><strong>File Format Options:</strong> Support multiple file formats (.md, .rtf, etc.)</li>
+          <li><strong>Cloud Sync:</strong> Add the ability to sync notes with a cloud service</li>
+          <li><strong>Multiple Windows:</strong> Support multiple note windows simultaneously</li>
+        </ul>
+        
+        <h4>Technical Improvements</h4>
+        <ul>
+          <li><strong>State Management:</strong> Implement proper state management (Redux, MobX, etc.)</li>
+          <li><strong>Database Storage:</strong> Use a database like SQLite to store notes locally</li>
+          <li><strong>Error Logging:</strong> Add comprehensive error logging</li>
+          <li><strong>Auto-updates:</strong> Implement automatic updates using electron-updater</li>
+          <li><strong>Testing:</strong> Add unit and integration tests with Spectron</li>
+        </ul>
+        
+        <h4>UI/UX Improvements</h4>
+        <ul>
+          <li><strong>Dark Mode:</strong> Add support for light/dark themes</li>
+          <li><strong>Customizable Interface:</strong> Allow users to customize fonts, colors, etc.</li>
+          <li><strong>Keyboard Shortcuts:</strong> Add more keyboard shortcuts for common actions</li>
+          <li><strong>Note Organization:</strong> Add tags, folders, or categories for better organization</li>
+        </ul>
+        
+        <p>This completes our tutorial for building a simple ElectroNote application with Electron! The next step would be to learn how to package your application for distribution, which is covered in the <a href="#Packaging">Packaging & Distribution</a> section.</p>
+      </section>
+
+      <section class="main-section" id="Packaging">
+        <header>Packaging & Distribution</header>
+        
+        <p>Once you've built your Electron app, you'll want to share it with others. Packaging turns your code into installable software that users can easily run on their computers.</p>
+        
+        <h3>What is Packaging?</h3>
+        <p>Packaging is the process of bundling your Electron app into an installer or executable file that users can download and run. A packaged app includes:</p>
+        <ul>
+          <li>Your application code (HTML, CSS, JavaScript)</li>
+          <li>The Electron runtime</li>
+          <li>Any dependencies your app needs</li>
+        </ul>
+        
+        <h3>Packaging in 3 Simple Steps</h3>
+        
+        <h4>Step 1: Install electron-builder</h4>
+        <p>electron-builder is a tool that makes packaging Electron apps easy:</p>
+        <code>npm install --save-dev electron-builder</code>
+        
+        <p>Add a build script to your package.json:</p>
+        <code>"scripts": {
+  "start": "electron .",
+  "build": "electron-builder"
+}</code>
+        
+        <h4>Step 2: Basic Configuration</h4>
+        <p>Add these essential settings to your package.json file:</p>
+        <code>{
+  "name": "electronote",
+  "version": "1.0.0",
+  "description": "A simple note-taking app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.example.electronote",
+    "productName": "ElectroNote",
+    "files": ["**/*"],
+    "directories": {
+      "output": "dist"
+    }
+  }
+}</code>
+        
+        <h4>Step 3: Build Your App</h4>
+        <p>Run the build command to create installers for your current platform:</p>
+        <code>npm run build</code>
+        
+        <p>You can build for specific platforms using:</p>
+        <code># For Windows
+npm run build -- --win
+
+# For macOS
+npm run build -- --mac
+
+# For Linux
+npm run build -- --linux</code>
+        
+        <h3>Platform-Specific Setup</h3>
+        
+        <h4>Windows</h4>
+        <p>For Windows, you'll get an installer (.exe) that users can run to install your app.</p>
+        <ul>
+          <li>Add a Windows icon (icon.ico) in a "build" folder</li>
+          <li>Windows builds work on Windows machines only</li>
+        </ul>
+        
+        <h4>macOS</h4>
+        <p>For macOS, you'll get a disk image (.dmg) that users can drag to their Applications folder.</p>
+        <ul>
+          <li>Add a macOS icon (icon.icns) in a "build" folder</li>
+          <li>macOS builds require a Mac for building</li>
+        </ul>
+        
+        <h4>Linux</h4>
+        <p>For Linux, you'll typically get an AppImage that runs on most Linux distributions.</p>
+        <ul>
+          <li>Add a Linux icon (icon.png) in a "build" folder</li>
+          <li>Linux builds work best on Linux machines</li>
+        </ul>
+        
+        <h3>Sharing Your App</h3>
+        
+        <h4>Website Distribution</h4>
+        <p>The easiest way to share your app is through your website:</p>
+        <ul>
+          <li>Create a download page with links to your installers</li>
+          <li>Include simple installation instructions</li>
+          <li>Provide system requirements</li>
+        </ul>
+        
+        <h4>GitHub Releases</h4>
+        <p>If your project is on GitHub, you can use GitHub Releases:</p>
+        <ol>
+          <li>Create a new release on GitHub</li>
+          <li>Upload your installer files</li>
+          <li>Publish the release</li>
+        </ol>
+        
+        <h4>Auto-Updates (Optional)</h4>
+        <p>You can add auto-update capabilities so users always have the latest version:</p>
+        <code>// In your main.js file
+const { autoUpdater } = require('electron-updater')
+
+// Check for updates when the app starts
+app.on('ready', () => {
+  autoUpdater.checkForUpdatesAndNotify()
+})</code>
+        
+        <p>This requires adding electron-updater to your project:</p>
+        <code>npm install --save electron-updater</code>
+        
+        <h3>Packaging Tips</h3>
+        <ul>
+          <li><strong>Keep it simple</strong> - Start with basic settings and add more as needed</li>
+          <li><strong>Test thoroughly</strong> - Always test your packaged app before distributing</li>
+          <li><strong>Start small</strong> - Package for your own platform first, then expand</li>
+          <li><strong>Check file size</strong> - Large apps take longer to download</li>
+        </ul>
+        
+        <p>With these basics, you can now package your ElectroNote app and share it with the world!</p>
+      </section>
+
+      <section class="main-section" id="BestPractices">
+        <header>Best Practices & Security</header>
+        
+        <p>This guide covers essential practices for building secure, efficient, and maintainable Electron applications. Following these recommendations will help you avoid common pitfalls and create better apps.</p>
+        
+        <h3>Security Best Practices</h3>
+        <p>Security is crucial for Electron apps since they have access to both web and native capabilities.</p>
+        
+        <h4>1. Use Context Isolation</h4>
+        <p>Context isolation separates your preload script from the renderer's JavaScript context, preventing prototype pollution attacks.</p>
+        
+        <div class="do-dont">
+          <div class="do">
+            <h5>DO</h5>
+            <code>const win = new BrowserWindow({
+  webPreferences: {
+    contextIsolation: true,
+    preload: path.join(__dirname, 'preload.js')
+  }
+})</code>
+          </div>
+          
+          <div class="dont">
+            <h5>DON'T</h5>
+            <code>const win = new BrowserWindow({
+  webPreferences: {
+    contextIsolation: false,  // INSECURE
+    preload: path.join(__dirname, 'preload.js')
+  }
+})</code>
+          </div>
+        </div>
+        
+        <h4>2. Disable Node Integration in Renderers</h4>
+        <p>Prevent renderers from directly accessing Node.js APIs to reduce security risks.</p>
+        
+        <div class="do-dont">
+          <div class="do">
+            <h5>DO</h5>
+            <code>const win = new BrowserWindow({
+  webPreferences: {
+    nodeIntegration: false,  // Default in Electron 12+
+    contextIsolation: true
+  }
+})</code>
+          </div>
+          
+          <div class="dont">
+            <h5>DON'T</h5>
+            <code>const win = new BrowserWindow({
+  webPreferences: {
+    nodeIntegration: true,  // INSECURE
+  }
+})</code>
+          </div>
+        </div>
+        
+        <h4>3. Implement Safe IPC Communication</h4>
+        <p>Use contextBridge to expose only specific APIs to the renderer process.</p>
+        
+        <code>// preload.js
+const { contextBridge, ipcRenderer } = require('electron')
+
+// Safely expose specific APIs
+contextBridge.exposeInMainWorld('electronAPI', {
+  // Only expose what's needed with data validation
+  saveData: (data) => {
+    // Validate data before sending
+    if (typeof data !== 'string' || data.length > 1000) {
+      throw new Error('Invalid data')
+    }
+    return ipcRenderer.invoke('save-data', data)
+  }
+})</code>
+        
+        <h4>4. Validate All Input</h4>
+        <p>Always validate data received from renderers in the main process.</p>
+        
+        <code>// main.js
+ipcMain.handle('save-data', async (event, data) => {
+  // Validate data before using it
+  if (typeof data !== 'string' || data.length > 1000) {
+    throw new Error('Invalid data')
+  }
+  
+  // Now safe to use
+  await fs.writeFile('path/to/file.txt', data)
+  return { success: true }
+})</code>
+        
+        <h4>5. Use Content Security Policy</h4>
+        <p>Add a strong Content Security Policy to prevent XSS attacks.</p>
+        
+        <code>&lt;meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; script-src 'self';"&gt;</code>
+        
+        <h3>Performance Optimization</h3>
+        
+        <h4>1. Memory Management</h4>
+        <p>Electron apps can consume significant memory if not properly optimized.</p>
+        
+        <ul>
+          <li><strong>Clean up event listeners</strong> - Always remove event listeners when they're no longer needed</li>
+          <li><strong>Release object references</strong> - Set objects to null when you're done with them</li>
+          <li><strong>Avoid global variables</strong> - They persist throughout the application lifecycle</li>
+        </ul>
+        
+        <code>// Good practice for cleanup
+let listener = () => { /* ... */ }
+element.addEventListener('click', listener)
+
+// Later, when no longer needed:
+element.removeEventListener('click', listener)
+listener = null</code>
+        
+        <h4>2. Optimize Resource Loading</h4>
+        <p>How you load resources affects startup time and memory usage.</p>
+        
+        <ul>
+          <li><strong>Use lazy loading</strong> - Load features only when needed</li>
+          <li><strong>Minimize preload script size</strong> - Keep it small and fast</li>
+          <li><strong>Optimize images</strong> - Use appropriate formats and compression</li>
+        </ul>
+        
+        <h4>3. Window Management</h4>
+        <p>Properly managing windows improves performance and user experience.</p>
+        
+        <div class="do-dont">
+          <div class="do">
+            <h5>DO</h5>
+            <ul>
+              <li>Hide windows instead of closing them for quick re-use</li>
+              <li>Use a single window with different views when possible</li>
+              <li>Implement proper garbage collection for closed windows</li>
+            </ul>
+          </div>
+          
+          <div class="dont">
+            <h5>DON'T</h5>
+            <ul>
+              <li>Create new windows for every function</li>
+              <li>Leave background windows fully rendered when not visible</li>
+              <li>Forget to remove references to closed windows</li>
+            </ul>
+          </div>
+        </div>
+        
+        <code>// Store window references properly
+let mainWindow = null
+
+function createMainWindow() {
+  mainWindow = new BrowserWindow({/*...*/})
+  
+  mainWindow.on('closed', () => {
+    // Release the reference
+    mainWindow = null
+  })
+}</code>
+        
+        <h3>Development Workflow Best Practices</h3>
+        
+        <h4>1. Project Structure</h4>
+        <p>A clean, organized structure makes your app easier to maintain.</p>
+        
+        <code>your-app/
+├── package.json
+├── main.js                # Main process code
+├── preload.js             # Preload scripts
+├── src/
+│   ├── main/              # Main process modules
+│   │   ├── menu.js        # Application menu
+│   │   └── ipc-handlers.js # IPC handler functions
+│   └── renderer/          # Renderer process code
+│       ├── index.html     # Main window HTML
+│       ├── app.js         # Renderer JavaScript
+│       └── styles.css     # Styling
+├── assets/                # Images, icons, etc.
+└── dist/                  # Output directory for builds</code>
+        
+        <h4>2. Testing Approaches</h4>
+        <p>Regular testing helps catch bugs before users do.</p>
+        
+        <ul>
+          <li><strong>Unit tests</strong> - Test individual functions with Jest or Mocha</li>
+          <li><strong>Integration tests</strong> - Test IPC communication between processes</li>
+          <li><strong>End-to-end tests</strong> - Use Spectron or Playwright to test the full app</li>
+        </ul>
+        
+        <code>// Example test with Spectron
+const { Application } = require('spectron')
+const assert = require('assert')
+const app = new Application({
+  path: '/path/to/your/electron/app'
+})
+
+describe('Application launch', function () {
+  beforeEach(() => app.start())
+  afterEach(() => app.stop())
+  
+  it('shows an initial window', async function () {
+    const count = await app.client.getWindowCount()
+    assert.strictEqual(count, 1)
+  })
+})</code>
+        
+        <h4>3. Debugging Tips</h4>
+        <p>Effective debugging saves development time.</p>
+        
+        <ul>
+          <li><strong>Use Electron DevTools</strong> - Press F12 or Cmd+Opt+I to open</li>
+          <li><strong>Enable logging</strong> - Add detailed logs in both processes</li>
+          <li><strong>Use electron-debug</strong> - Adds useful debugging shortcuts</li>
+        </ul>
+        
+        <code>// Enable DevTools in development
+if (process.env.NODE_ENV === 'development') {
+  mainWindow.webContents.openDevTools()
+}
+
+// Better error logging
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught exception:', error)
+  // Log to a file, show to user, etc.
+})</code>
+        
+        <h4>4. Error Handling</h4>
+        <p>Robust error handling improves reliability and user experience.</p>
+        
+        <ul>
+          <li><strong>Try-catch blocks</strong> - Wrap code that might throw errors</li>
+          <li><strong>Error dialogs</strong> - Show user-friendly error messages</li>
+          <li><strong>Error reporting</strong> - Implement crash reporting services</li>
+        </ul>
+        
+        <code>// User-friendly error handling
+try {
+  // Risky operation
+  const result = riskyOperation()
+} catch (error) {
+  dialog.showErrorBox(
+    'Something went wrong', 
+    'We encountered a problem: ' + error.message
+  )
+  console.error('Detailed error:', error)
+}</code>
+        
+        <h3>Security Checklist</h3>
+        <ul>
+          <li>✅ Set contextIsolation: true</li>
+          <li>✅ Set nodeIntegration: false</li>
+          <li>✅ Use a proper Content Security Policy</li>
+          <li>✅ Only expose necessary APIs through contextBridge</li>
+          <li>✅ Validate all data from renderer processes</li>
+          <li>✅ Use HTTPS for all network requests</li>
+          <li>✅ Keep Electron and dependencies up to date</li>
+          <li>✅ Filter and sanitize all user input</li>
+          <li>✅ Implement proper permission handling</li>
+        </ul>
+        
+        <p>By following these best practices, you'll build Electron applications that are more secure, performant, and maintainable. These guidelines will help you avoid common pitfalls and deliver a better experience to your users.</p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
+
